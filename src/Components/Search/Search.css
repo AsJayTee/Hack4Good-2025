@@ -1,0 +1,40 @@
+.search {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  } 
+.input-group {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+    width: 400px;
+    background-color: #f9f9f9;
+  }
+.input-group .form-control {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    color: #333;
+    background-color: transparent;
+  }
+.input-group .btn {
+    background-color: red;
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+.input-group .btn:hover {
+    background-color: darkred;
+  }
+.input-group .bi-search {
+    font-size: 18px;
+  }
+  
