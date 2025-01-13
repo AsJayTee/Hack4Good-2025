@@ -55,7 +55,16 @@ class DatabaseInterface:
         self.cursor.execute(query + query_tail, params)
         rows = self.cursor.fetchall()
         return rows
-
+    #Ishal: adding empty functions we'll probably need to fill in later
+    def add_product():
+        return
+    
+    def remove_product():
+        return
+    
+    def change_product_quantity():
+        return
+    
 if __name__ == '__main__':
     from dotenv import load_dotenv
     load_dotenv()
