@@ -64,17 +64,24 @@ class DatabaseInterface:
         rows = self.cursor.fetchall()
         return rows
     
-    def add_product():
-        pass
+    def add_product(self, product_id : int, quantity : int) -> None:
+        query = f"UPDATE {self.inventory_table_name} " \
+            "SET Quantity = Quantity + ? WHERE Product_ID = ?;"
+        self.cursor.execute(query, (quantity, product_id))
+        self.connection.commit()
     
-    def remove_product():
-        pass
-    
-    def change_product_quantity():
-        pass
+    def remove_product(self, product_id : int, quantity : int) -> None:
+        query = f"UPDATE {self.inventory_table_name} SET Quantity = CASE " \
+            "WHEN Quantity - ? < 0 THEN 0 ELSE Quantity - ? END WHERE Product_ID = ?;"
+        self.cursor.execute(query, (quantity, quantity, product_id))
+        self.connection.commit()
 
+    def get_product_stock(self, product_id : int) -> int:
+        query = f"SELECT Quantity from {self.inventory_table_name} " \
+            "WHERE Product_ID = ?"
+        self.cursor.execute(query, (product_id,))
+        return self.cursor.fetchone()[0]
 
-    
 if __name__ == '__main__':
     from dotenv import load_dotenv
     load_dotenv()
