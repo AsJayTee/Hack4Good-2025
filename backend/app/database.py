@@ -16,6 +16,7 @@ class DatabaseInterface:
 
     def get_number_of_pages(
             self, 
+            description : str = None,
             categories : list[str] = None, 
             in_stock_only : bool = False
             ) -> int:
@@ -25,7 +26,12 @@ class DatabaseInterface:
         if categories:
             formatted_string = "('" + "', '".join(categories) + "')"
             query = query + f"WHERE Product_Category IN {formatted_string} "
-        self.cursor.execute(query)
+        if description:
+            query = query + "WHERE levenshtein(Product_Name, ?) <= 5"
+            params = (description,)
+        else:
+            params = ()
+        self.cursor.execute(query, params)
         row_count = self.cursor.fetchone()[0]
         return math.ceil(row_count / self.products_per_page)
     
@@ -49,21 +55,25 @@ class DatabaseInterface:
             query = query + f"WHERE Product_Category IN {formatted_string} "
         if description:
             query = query + "WHERE levenshtein(Product_Name, ?) <= 5 "
+            params = (description,)
+        else:
+            params = ()
         query_tail = f"LIMIT {self.products_per_page} " \
             f"OFFSET {(page - 1) * self.products_per_page};"
-        params = (description,) if description else ()
         self.cursor.execute(query + query_tail, params)
         rows = self.cursor.fetchall()
         return rows
-    #Ishal: adding empty functions we'll probably need to fill in later
+    
     def add_product():
-        return
+        pass
     
     def remove_product():
-        return
+        pass
     
     def change_product_quantity():
-        return
+        pass
+
+
     
 if __name__ == '__main__':
     from dotenv import load_dotenv
