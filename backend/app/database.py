@@ -221,7 +221,7 @@ class DatabaseInterface:
     def get_user_details(self, resident_id : str) -> list[tuple[str, int]]:
         query = \
         f"""
-        SELECT Resident_ID, Name, Category, Points_Balance, Contact
+        SELECT Resident_ID, Name, Category, Points_Balance, Contact, Suspended
         FROM {self.users_table_name}
         WHERE Resident_ID = ?
         """
@@ -238,6 +238,29 @@ class DatabaseInterface:
             query = query + f" LIMIT {users}"
         self.cursor.execute(query)
         return self.cursor.fetchall()
+
+    def suspend_user(self, resident_id : str) -> None:
+        query = \
+        f"""
+        UPDATE {self.users_table_name}
+        SET Suspended = TRUE
+        WHERE Resident_ID = '{resident_id}'
+        """
+        self.cursor.execute(query)
+        self.connection.commit()
+    
+    def unsuspend_user(self, resident_id : str) -> None:
+        query = \
+        f"""
+        UPDATE {self.users_table_name}
+        SET Suspended = FALSE
+        WHERE Resident_ID = '{resident_id}'
+        """
+        self.cursor.execute(query)
+        self.connection.commit()
+
+    def get_user_groups(self) -> list[tuple]:
+        pass
 
 if __name__ == '__main__':
     from dotenv import load_dotenv
