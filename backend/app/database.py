@@ -259,8 +259,24 @@ class DatabaseInterface:
         self.cursor.execute(query)
         self.connection.commit()
 
-    def get_user_groups(self) -> list[tuple]:
-        pass
+    def get_user_group_options(self) -> list[tuple[str]]:
+        query = \
+        f"""
+        SELECT DISTINCT Category
+        FROM {self.users_table_name}
+        """
+        self.cursor.execute(query)
+        return self.cursor.fetchall()
+    
+    def set_user_group(self, resident_id : str, group : str) -> None:
+        query = \
+        f"""
+        UPDATE {self.users_table_name}
+        SET Category = ?
+        WHERE Resident_ID = '{resident_id}'
+        """
+        self.cursor.execute(query, (group,))
+        self.connection.commit()
 
 if __name__ == '__main__':
     from dotenv import load_dotenv
@@ -271,4 +287,4 @@ if __name__ == '__main__':
     print(di.get_products(1))
     print("---------------------")
     print(di.get_user_order_history("A"))
-    print(di.get_list_of_users())
+    print(di.get_user_group_options())
