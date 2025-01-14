@@ -321,6 +321,30 @@ class DatabaseInterface:
         self.cursor.execute(query, (quantity, product_id))
         self.connection.commit()
 
+    def create_new_product(
+            self, 
+            product_id : str | int, 
+            product_name : str, 
+            product_category : str, 
+            point_cost : int, 
+            quantity : int) -> None:
+        query = \
+        f"""
+        INSERT INTO {self.inventory_table_name} (Product_ID, Product_Name, Product_Category, Point_Cost, Quantity)
+        VALUES (?, ?, ?, ?)
+        """
+        self.cursor.execute(query, (product_id, product_name, product_category, point_cost, quantity))
+        self.connection.commit()
+
+    def delete_product_from_inventory(self, product_id : str | int) -> None:
+        query = \
+        f"""
+        DELETE FROM {self.inventory_table_name}
+        WHERE Product_ID = ?
+        """
+        self.cursor.execute(query, (product_id,))
+        self.connection.commit()
+
 if __name__ == '__main__':
     from pprint import pprint
     from dotenv import load_dotenv
