@@ -304,7 +304,22 @@ class DatabaseInterface:
         return self.cursor.fetchall()
 
     def add_inventory_stock(self, product_id : int, quantity : int) -> None:
-        pass
+        query = f"""
+        UPDATE {self.inventory_table_name} 
+        SET Quantity = Quantity + ? 
+        WHERE Product_ID = ?;
+        """
+        self.cursor.execute(query, (quantity, product_id))
+        self.connection.commit()
+
+    def remove_inventory_stock(self, product_id : int, quantity : int) -> None:
+        query = f"""
+        UPDATE {self.inventory_table_name} 
+        SET Quantity = Quantity - ? 
+        WHERE Product_ID = ?;
+        """
+        self.cursor.execute(query, (quantity, product_id))
+        self.connection.commit()
 
 if __name__ == '__main__':
     from pprint import pprint
@@ -318,4 +333,5 @@ if __name__ == '__main__':
     di.rename_group(1, 'A')
     pprint(di.get_list_of_users())
     print("---------------------")
+    di.add_inventory_stock(50, 3)
     print(di.get_inventory_items())
