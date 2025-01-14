@@ -290,6 +290,22 @@ class DatabaseInterface:
         self.cursor.execute(query, (old_group, new_group))
         self.connection.commit()
 
+    def get_inventory_items(self) -> list[tuple[str, int]]:
+        query = \
+        f"""
+        SELECT Product_ID, Product_Name, Product_Category, Quantity, 
+        CASE 
+            WHEN Quantity = 0 THEN 'Yes'
+            ELSE 'No'
+        END AS Out_of_Stock
+        FROM {self.inventory_table_name}
+        """
+        self.cursor.execute(query)
+        return self.cursor.fetchall()
+
+    def add_inventory_stock(self, product_id : int, quantity : int) -> None:
+        pass
+
 if __name__ == '__main__':
     from pprint import pprint
     from dotenv import load_dotenv
@@ -301,4 +317,5 @@ if __name__ == '__main__':
     print("---------------------")
     di.rename_group(1, 'A')
     pprint(di.get_list_of_users())
-    print(di.get_user_group_options())
+    print("---------------------")
+    print(di.get_inventory_items())
