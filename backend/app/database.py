@@ -12,6 +12,7 @@ class DatabaseInterface:
     products_per_page : int = 8
     orders_table_name : str = "orders_table"
     users_table_name : str = "resident_accounts_info_table"
+    carts : dict
 
     def __init__(self):
         self.connection = sqlite3.connect(os.environ.get("DATABASE_PATH"))
@@ -164,7 +165,23 @@ class DatabaseInterface:
         self.cursor.execute(query)
         return self.cursor.fetchall()
     
-    def make_orders(self, resident_id: str, product_ids: list[int]) -> None:
+    def create_new_cart(self, resident_id : str) -> None:
+        self.carts[resident_id] = list()
+
+    def add_to_cart(self, resident_id : str, product_id : int, quantity : int = 1) -> None:
+        products_in_cart : list = self.carts.get(resident_id)
+        for _ in range(quantity):
+            products_in_cart.append(product_id)
+    
+    def remove_from_cart(self, resident_id : str, product_id : int, quantity : int = 1) -> None:
+        products_in_cart : list = self.carts.get(resident_id)
+        for _ in range(quantity):
+            products_in_cart.remove(product_id)
+
+    def checkout_cart(self, resident_id : str) -> None:
+        self.__make_orders(resident_id, self.carts.pop(resident_id))
+
+    def __make_orders(self, resident_id: str, product_ids: list[int]) -> None:
         select_max_query = \
         f"""
         SELECT MAX(CAST(SUBSTRING(Voucher_Request_ID, 2, LENGTH(Voucher_Request_ID)) AS UNSIGNED)) 
@@ -201,15 +218,65 @@ class DatabaseInterface:
         self.cursor.execute(query)
         return self.cursor.fetchall()
     
-    def get_user_details(self, resident_id : str):
+    def get_user_details(self, resident_id : str) -> list[tuple[str, int]]:
         query = \
         f"""
-        SELECT Resident_ID, Name, Category, Points_Balance, Contact
+        SELECT Resident_ID, Name, Category, Points_Balance, Contact, Suspended
         FROM {self.users_table_name}
         WHERE Resident_ID = ?
         """
         self.cursor.execute(query, (resident_id,))
         return self.cursor.fetchone()
+    
+    def get_list_of_users(self, users : int = None):
+        query = \
+        f"""
+        SELECT Resident_ID, Name, Category 
+        FROM {self.users_table_name}
+        """
+        if users:
+            query = query + f" LIMIT {users}"
+        self.cursor.execute(query)
+        return self.cursor.fetchall()
+
+    def suspend_user(self, resident_id : str) -> None:
+        query = \
+        f"""
+        UPDATE {self.users_table_name}
+        SET Suspended = TRUE
+        WHERE Resident_ID = '{resident_id}'
+        """
+        self.cursor.execute(query)
+        self.connection.commit()
+    
+    def unsuspend_user(self, resident_id : str) -> None:
+        query = \
+        f"""
+        UPDATE {self.users_table_name}
+        SET Suspended = FALSE
+        WHERE Resident_ID = '{resident_id}'
+        """
+        self.cursor.execute(query)
+        self.connection.commit()
+
+    def get_user_group_options(self) -> list[tuple[str]]:
+        query = \
+        f"""
+        SELECT DISTINCT Category
+        FROM {self.users_table_name}
+        """
+        self.cursor.execute(query)
+        return self.cursor.fetchall()
+    
+    def set_user_group(self, resident_id : str, group : str) -> None:
+        query = \
+        f"""
+        UPDATE {self.users_table_name}
+        SET Category = ?
+        WHERE Resident_ID = '{resident_id}'
+        """
+        self.cursor.execute(query, (group,))
+        self.connection.commit()
 
 if __name__ == '__main__':
     from dotenv import load_dotenv
@@ -220,3 +287,4 @@ if __name__ == '__main__':
     print(di.get_products(1))
     print("---------------------")
     print(di.get_user_order_history("A"))
+    print(di.get_user_group_options())
