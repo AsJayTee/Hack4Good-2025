@@ -74,3 +74,9 @@
     background:red;
     color:white;
 }
+
+.nav-login-cart img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
