@@ -218,7 +218,7 @@ class DatabaseInterface:
         self.cursor.execute(query)
         return self.cursor.fetchall()
     
-    def get_user_details(self, resident_id : str):
+    def get_user_details(self, resident_id : str) -> list[tuple[str, int]]:
         query = \
         f"""
         SELECT Resident_ID, Name, Category, Points_Balance, Contact
@@ -227,6 +227,19 @@ class DatabaseInterface:
         """
         self.cursor.execute(query, (resident_id,))
         return self.cursor.fetchone()
+    
+    def get_list_of_users(self, users : int = None):
+        query = \
+        f"""
+        SELECT Resident_ID, Name, Category 
+        FROM {self.users_table_name}
+        """
+        if users:
+            query = query + f" LIMIT {users}"
+        self.cursor.execute(query)
+        return self.cursor.fetchall()
+
+
 
 if __name__ == '__main__':
     from dotenv import load_dotenv
@@ -237,3 +250,4 @@ if __name__ == '__main__':
     print(di.get_products(1))
     print("---------------------")
     print(di.get_user_order_history("A"))
+    print(di.get_list_of_users())
