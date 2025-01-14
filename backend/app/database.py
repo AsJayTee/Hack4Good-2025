@@ -278,7 +278,20 @@ class DatabaseInterface:
         self.cursor.execute(query, (group,))
         self.connection.commit()
 
+    def rename_group(self, old_group : str, new_group : str) -> None:
+        query = \
+        f"""
+        UPDATE {self.users_table_name}
+        SET Category = CASE
+            WHEN Category = ? THEN ?
+            ELSE Category
+        END;
+        """
+        self.cursor.execute(query, (old_group, new_group))
+        self.connection.commit()
+
 if __name__ == '__main__':
+    from pprint import pprint
     from dotenv import load_dotenv
     load_dotenv()
     di = DatabaseInterface()
@@ -286,5 +299,6 @@ if __name__ == '__main__':
     print("---------------------")
     print(di.get_products(1))
     print("---------------------")
-    print(di.get_user_order_history("A"))
+    di.rename_group(1, 'A')
+    pprint(di.get_list_of_users())
     print(di.get_user_group_options())
