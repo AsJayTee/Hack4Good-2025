@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import database #imports the database.py file
 app = Flask(__name__)
+#db_interface = database.DatabaseInterface()
 
 @app.route('/getProducts', methods=['GET']) 
 #GET here means only HTTP GET requests are allowed for this URL ending with /getProducts 
@@ -54,8 +55,7 @@ def insert_product():
             return jsonify({"error": "Product ID and quantity are required."}), 400
         
         # Call the add_product method from the database interface
-        db_interface = database.DatabaseInterface()  # Assuming this is your database interface class
-        db_interface.add_product(product_id, quantity)
+        database.DatabaseInterface().add_product(product_id, quantity)
         
         # Return success response
         response = jsonify({
@@ -70,7 +70,35 @@ def insert_product():
         # Return error message if something goes wrong
         return jsonify({"error": str(e)}), 500
 
+@app.route('/createCart', methods=['POST'])
+def create_new_cart():
+    try:
+        resident_id = request.json.get('resident_id')
+        if not resident_id:
+            return jsonify({"error": "Resident ID is required."}), 400
+        
+        database.DatabaseInterface().create_new_cart(resident_id)
+        return jsonify({"message": "New cart created successfully."})
 
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/addToCart', methods=['POST'])
+def add_to_cart():
+    try:
+        data = request.json
+        resident_id = data.get('resident_id')
+        product_id = data.get('product_id')
+        quantity = data.get('quantity', 1)
+
+        if not resident_id or not product_id:
+            return jsonify({"error": "Resident ID and Product ID are required."}), 400
+
+        database.DatabaseInterface().add_to_cart(resident_id, product_id, quantity)
+        return jsonify({"message": f"Added {quantity} of product {product_id} to cart."})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv()   
