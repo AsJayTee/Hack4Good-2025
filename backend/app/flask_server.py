@@ -95,10 +95,19 @@ def add_to_cart():
             return jsonify({"error": "Resident ID and Product ID are required."}), 400
 
         database.DatabaseInterface().add_to_cart(resident_id, product_id, quantity)
-        return jsonify({"message": f"Added {quantity} of product {product_id} to cart."})
+        return jsonify({"message": f"Added {quantity} of product {product_id} to cart."}) #might not need this msg
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/getProductsByCategory', methods=['GET'])
+def get_products_by_category():
+    category = request.args.get('category')
+    if not category:
+        return jsonify({'error': 'Category is required'}), 400
+    products = database.DatabaseInterface().get_products_by_category(category)
+    return jsonify(products)
+
 if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv()   
