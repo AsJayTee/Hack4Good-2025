@@ -1,0 +1,107 @@
+/* Dashboard layout */
+.dashboard {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    background-color: #f9f9f9; /* Unified background for both sections */
+}
+
+/* Profile section */
+.profile-container {
+    flex: 1; /* Takes up 1/3 of the screen */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Profile card styling */
+.profile-card {
+    background: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    width: 100%;
+    max-width: 300px;
+    margin-bottom: 20px;
+}
+
+.profile-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 20px;
+    object-fit: cover;
+    border: 2px solid #ccc;
+}
+
+.profile-name {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin: 10px 0;
+}
+
+.profile-id,
+.profile-points {
+    font-size: 18px;
+    color: #666;
+    margin: 5px 0;
+}
+
+/* Profile options */
+.profile-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 300px;
+}
+
+.option-button {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.option-button:hover {
+    background-color: #0056b3;
+}
+
+/* Order history section */
+.order-history {
+    flex: 2; /* Takes up 2/3 of the screen */
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.order-history h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.order-list {
+    list-style: none;
+    padding: 0;
+}
+
+.order-item {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+.order-item p {
+    margin: 5px 0;
+    font-size: 16px;
+    color: #555;
+}

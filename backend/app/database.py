@@ -12,6 +12,7 @@ class DatabaseInterface:
     products_per_page : int = 8
     orders_table_name : str = "orders_table"
     users_table_name : str = "resident_accounts_info_table"
+    carts : dict
 
     def __init__(self):
         self.connection = sqlite3.connect(os.environ.get("DATABASE_PATH"))
@@ -164,7 +165,23 @@ class DatabaseInterface:
         self.cursor.execute(query)
         return self.cursor.fetchall()
     
-    def make_orders(self, resident_id: str, product_ids: list[int]) -> None:
+    def create_new_cart(self, resident_id : str) -> None:
+        self.carts[resident_id] = list()
+
+    def add_to_cart(self, resident_id : str, product_id : int, quantity : int = 1) -> None:
+        products_in_cart : list = self.carts.get(resident_id)
+        for _ in range(quantity):
+            products_in_cart.append(product_id)
+    
+    def remove_from_cart(self, resident_id : str, product_id : int, quantity : int = 1) -> None:
+        products_in_cart : list = self.carts.get(resident_id)
+        for _ in range(quantity):
+            products_in_cart.remove(product_id)
+
+    def checkout_cart(self, resident_id : str) -> None:
+        self.__make_orders(resident_id, self.carts.pop(resident_id))
+
+    def __make_orders(self, resident_id: str, product_ids: list[int]) -> None:
         select_max_query = \
         f"""
         SELECT MAX(CAST(SUBSTRING(Voucher_Request_ID, 2, LENGTH(Voucher_Request_ID)) AS UNSIGNED)) 
@@ -201,17 +218,135 @@ class DatabaseInterface:
         self.cursor.execute(query)
         return self.cursor.fetchall()
     
-    def get_user_details(self, resident_id : str):
+    def get_user_details(self, resident_id : str) -> list[tuple[str, int]]:
         query = \
         f"""
-        SELECT Resident_ID, Name, Category, Points_Balance, Contact
+        SELECT Resident_ID, Name, Category, Points_Balance, Contact, Suspended
         FROM {self.users_table_name}
         WHERE Resident_ID = ?
         """
         self.cursor.execute(query, (resident_id,))
         return self.cursor.fetchone()
+    
+    def get_list_of_users(self, users : int = None):
+        query = \
+        f"""
+        SELECT Resident_ID, Name, Category 
+        FROM {self.users_table_name}
+        """
+        if users:
+            query = query + f" LIMIT {users}"
+        self.cursor.execute(query)
+        return self.cursor.fetchall()
+
+    def suspend_user(self, resident_id : str) -> None:
+        query = \
+        f"""
+        UPDATE {self.users_table_name}
+        SET Suspended = TRUE
+        WHERE Resident_ID = '{resident_id}'
+        """
+        self.cursor.execute(query)
+        self.connection.commit()
+    
+    def unsuspend_user(self, resident_id : str) -> None:
+        query = \
+        f"""
+        UPDATE {self.users_table_name}
+        SET Suspended = FALSE
+        WHERE Resident_ID = '{resident_id}'
+        """
+        self.cursor.execute(query)
+        self.connection.commit()
+
+    def get_user_group_options(self) -> list[tuple[str]]:
+        query = \
+        f"""
+        SELECT DISTINCT Category
+        FROM {self.users_table_name}
+        """
+        self.cursor.execute(query)
+        return self.cursor.fetchall()
+    
+    def set_user_group(self, resident_id : str, group : str) -> None:
+        query = \
+        f"""
+        UPDATE {self.users_table_name}
+        SET Category = ?
+        WHERE Resident_ID = '{resident_id}'
+        """
+        self.cursor.execute(query, (group,))
+        self.connection.commit()
+
+    def rename_group(self, old_group : str, new_group : str) -> None:
+        query = \
+        f"""
+        UPDATE {self.users_table_name}
+        SET Category = CASE
+            WHEN Category = ? THEN ?
+            ELSE Category
+        END;
+        """
+        self.cursor.execute(query, (old_group, new_group))
+        self.connection.commit()
+
+    def get_inventory_items(self) -> list[tuple[str, int]]:
+        query = \
+        f"""
+        SELECT Product_ID, Product_Name, Product_Category, Quantity, 
+        CASE 
+            WHEN Quantity = 0 THEN 'Yes'
+            ELSE 'No'
+        END AS Out_of_Stock
+        FROM {self.inventory_table_name}
+        """
+        self.cursor.execute(query)
+        return self.cursor.fetchall()
+
+    def add_inventory_stock(self, product_id : int, quantity : int) -> None:
+        query = f"""
+        UPDATE {self.inventory_table_name} 
+        SET Quantity = Quantity + ? 
+        WHERE Product_ID = ?;
+        """
+        self.cursor.execute(query, (quantity, product_id))
+        self.connection.commit()
+
+    def remove_inventory_stock(self, product_id : int, quantity : int) -> None:
+        query = f"""
+        UPDATE {self.inventory_table_name} 
+        SET Quantity = Quantity - ? 
+        WHERE Product_ID = ?;
+        """
+        self.cursor.execute(query, (quantity, product_id))
+        self.connection.commit()
+
+    def create_new_product(
+            self, 
+            product_id : str | int, 
+            product_name : str, 
+            product_category : str, 
+            point_cost : int, 
+            quantity : int) -> None:
+        query = \
+        f"""
+        INSERT INTO {self.inventory_table_name} (Product_ID, Product_Name, Product_Category, Point_Cost, Quantity)
+        VALUES (?, ?, ?, ?)
+        """
+        self.cursor.execute(query, (product_id, product_name, product_category, point_cost, quantity))
+        self.connection.commit()
+
+    def delete_product_from_inventory(self, product_id : str | int) -> None:
+        query = \
+        f"""
+        DELETE FROM {self.inventory_table_name}
+        WHERE Product_ID = ?
+        """
+        self.cursor.execute(query, (product_id,))
+        self.connection.commit()
 
 if __name__ == '__main__':
+    from pprint import pprint
     from dotenv import load_dotenv
     load_dotenv()
     di = DatabaseInterface()
@@ -219,4 +354,8 @@ if __name__ == '__main__':
     print("---------------------")
     print(di.get_products(1))
     print("---------------------")
-    print(di.get_user_order_history("A"))
+    di.rename_group(1, 'A')
+    pprint(di.get_list_of_users())
+    print("---------------------")
+    di.add_inventory_stock(50, 3)
+    print(di.get_inventory_items())
