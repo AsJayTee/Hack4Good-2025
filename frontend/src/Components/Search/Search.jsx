@@ -1,8 +1,20 @@
-import "../Search/Search.css";
+import React, { useState } from 'react';
+import './Search.css';
 
-const Search = () => {
+const Search = ({ onSearch }) => {
+  const [query, setQuery] = useState('');
+
+  const handleSearchChange = (event) => {
+    setQuery(event.target.value);
+  };
+
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+    onSearch(query);  // Pass the search query to the parent component
+  };
+
   return (
-    <form action="#" className="search">
+    <form action="#" className="search" onSubmit={handleSearchSubmit}>
       <div className="input-group">
         <input
           id="search"
@@ -10,11 +22,13 @@ const Search = () => {
           type="text"
           className="form-control"
           placeholder="Search"
+          value={query}
+          onChange={handleSearchChange} // Update the search query
           required
         />
         <label className="visually-hidden" htmlFor="search"></label>
         <button
-          className="btn btn-primary text-white"
+          className="btn"
           type="submit"
           aria-label="Search"
         >
@@ -24,4 +38,5 @@ const Search = () => {
     </form>
   );
 };
+
 export default Search;

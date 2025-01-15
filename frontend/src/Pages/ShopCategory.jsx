@@ -5,7 +5,30 @@ import dropdown_icon from '../Components/Assets/dropdown_icon.png';
 import Item from '../Components/Item/Item';
 import Search from '../Components/Search/Search';
 
-const ShopCategory = (props) => {
+
+import Pages from '../Components/Pagination/CatPagination';
+
+function ShopCategory() {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch=(query)=>{
+    setSearchQuery(query);
+  }
+
+  return (
+    <div className="shop-container">
+      <Search onSearch={handleSearch}/>
+      <h1>All Products</h1>
+      <Pages />
+    </div>
+  );
+}
+
+export default ShopCategory;
+
+
+
+/*const ShopCategory = (props) => {
     const { all_product } = useContext(ShopContext);
     const [sortOrder, setSortOrder] = useState('asc'); // State to manage sort order (ascending or descending)
 
@@ -48,3 +71,4 @@ const ShopCategory = (props) => {
 };
 
 export default ShopCategory;
+*/
