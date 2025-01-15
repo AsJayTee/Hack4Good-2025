@@ -13,6 +13,7 @@ class DatabaseInterface:
     orders_table_name : str = "orders_table"
     users_table_name : str = "resident_accounts_info_table"
     carts : dict = dict()
+    admin_actions_table_name : str = "admin_actions_table"
 
     def __init__(self):
         self.connection = sqlite3.connect(os.environ.get("DATABASE_PATH"))
@@ -117,15 +118,34 @@ class DatabaseInterface:
 
     def update_order(
             self, 
-            order_id : str, 
-            decision : Literal["Approved", "Denied"], 
-            admin_id : str
+            order_id: str, 
+            decision: Literal["Approved", "Denied"], 
+            admin_id: str
             ) -> None:
-        query = f"UPDATE {self.orders_table_name} " \
-            "SET Status = ?, Admin = ? WHERE Voucher_Request_ID = ?"
-        self.cursor.execute(query, (decision, admin_id, order_id))
+        self.__record_admin_action(admin_id, f"{decision} order for ORDER_ID : {order_id}")
+        select_query = f"""
+        SELECT o.Product_ID, p.Quantity
+        FROM {self.orders_table_name} o
+        JOIN {self.inventory_table_name} p
+        ON o.Product_ID = p.Product_ID
+        WHERE o.Voucher_Request_ID = ?
+        """
+        self.cursor.execute(select_query, (order_id,))
+        order = self.cursor.fetchone()
+        if order:
+            product_id, quantity_in_stock = order
+            if decision == "Approved" and quantity_in_stock > 0:
+                update_order_query = f"""
+                UPDATE {self.orders_table_name}
+                SET Status = ?, Admin = ?
+                WHERE Voucher_Request_ID = ?
+                """
+                self.cursor.execute(update_order_query, (decision, admin_id, order_id))
+                self.remove_inventory_stock(product_id, 1)
+        self.connection.commit()
     
     def approve_all_in_stock_items(self, admin_id: str) -> None:
+        self.__record_admin_action(admin_id, "Approved all in-stock items")
         select_query = \
         f"""
         SELECT o.Voucher_Request_ID, o.Product_ID, p.Quantity
@@ -149,7 +169,12 @@ class DatabaseInterface:
                 WHERE Voucher_Request_ID = ?
                 """
                 self.cursor.execute(update_order_query, (admin_id, voucher_request_id))
+                self.__record_admin_action(
+                    admin_id, 
+                    f"Approved order for ORDER_ID : {voucher_request_id}"
+                )
                 stock_updates[product_id] = current_stock - 1
+                self.remove_inventory_stock(product_id, 1)
         self.connection.commit()
     
     def get_admin_action_history(self, actions : int = None) -> list[tuple]:
@@ -337,7 +362,11 @@ class DatabaseInterface:
         self.cursor.execute(query)
         return self.cursor.fetchall()
 
-    def add_inventory_stock(self, product_id : int, quantity : int) -> None:
+    def add_inventory_stock(self, admin_id : str | int, product_id : int, quantity : int) -> None:
+        self.__record_admin_action(
+            admin_id, 
+            f"Incremented inventory count for product with PRODUCT ID: {product_id} by {quantity}"
+        )
         query = f"""
         UPDATE {self.inventory_table_name} 
         SET Quantity = Quantity + ? 
@@ -346,7 +375,11 @@ class DatabaseInterface:
         self.cursor.execute(query, (quantity, product_id))
         self.connection.commit()
 
-    def remove_inventory_stock(self, product_id : int, quantity : int) -> None:
+    def remove_inventory_stock(self, admin_id : str | int, product_id : int, quantity : int) -> None:
+        self.__record_admin_action(
+            admin_id, 
+            f"Deducted inventory count for product with PRODUCT ID: {product_id} by {quantity}"
+        )
         query = f"""
         UPDATE {self.inventory_table_name} 
         SET Quantity = Quantity - ? 
@@ -357,6 +390,7 @@ class DatabaseInterface:
 
     def create_new_product(
             self,
+            admin_id : str | int, 
             product_id: str | int,
             product_name: str,
             product_category: str,
@@ -364,6 +398,10 @@ class DatabaseInterface:
             quantity: int,
             image: bytes
             ) -> None:
+        self.__record_admin_action(
+            admin_id, 
+            f"Created new product with PRODUCT ID: {product_id}"
+        )
         query = f"""
         INSERT INTO {self.inventory_table_name} (Product_ID, Product_Name, Product_Category, Point_Cost, Quantity, Image)
         VALUES (?, ?, ?, ?, ?, ?)
@@ -371,13 +409,25 @@ class DatabaseInterface:
         self.cursor.execute(query, (product_id, product_name, product_category, point_cost, quantity, image))
         self.connection.commit()
 
-    def delete_product_from_inventory(self, product_id : str | int) -> None:
+    def delete_product_from_inventory(self, admin_id : str | int, product_id : str | int) -> None:
+        self.__record_admin_action(
+            admin_id, 
+            f"Deleted old product with PRODUCT ID: {product_id}"
+        )
         query = \
         f"""
         DELETE FROM {self.inventory_table_name}
         WHERE Product_ID = ?
         """
         self.cursor.execute(query, (product_id,))
+        self.connection.commit()
+    
+    def __record_admin_action(self, admin_id : str | int, message : str) -> None:
+        query = f"""
+        INSERT INTO {self.admin_actions_table_name} (Admin_ID, Action_Desc)
+        VALUES (?, ?)
+        """
+        self.cursor.execute(query, (admin_id, message))
         self.connection.commit()
 
     def print_carts(self):
