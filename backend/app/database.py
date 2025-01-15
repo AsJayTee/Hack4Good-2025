@@ -53,7 +53,7 @@ class DatabaseInterface:
         query = f"SELECT * FROM {self.inventory_table_name} WHERE Product_Category = ?;"
         self.cursor.execute(query, (category,))
         return self.cursor.fetchall()
-
+#test
     def get_products(
             self, 
             page : int, 
@@ -525,7 +525,6 @@ if __name__ == '__main__':
     di.rename_group(1, 'A')
     pprint(di.get_list_of_users())
     print("---------------------")
-<<<<<<< HEAD
     print(di.get_user_details('A'))
     di.give_user_points('A', 3)
     print(di.get_user_details('A'))
@@ -538,7 +537,5 @@ if __name__ == '__main__':
     print(di.get_received_coupons('C'))
     print(di.get_received_coupons('C'))
     print(di.get_received_coupons('B'))
-=======
     di.add_inventory_stock(50, 3)
     print(di.get_inventory_items())"""
->>>>>>> dbb27ff4 (added get_product_by_category method)

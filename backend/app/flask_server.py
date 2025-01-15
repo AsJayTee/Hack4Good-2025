@@ -107,7 +107,7 @@ def get_products_by_category():
         return jsonify({'error': 'Category is required'}), 400
     products = database.DatabaseInterface().get_products_by_category(category)
     return jsonify(products)
-
+#test
 if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv()   
