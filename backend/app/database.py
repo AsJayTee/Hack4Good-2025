@@ -345,6 +345,9 @@ class DatabaseInterface:
         self.cursor.execute(query, (product_id,))
         self.connection.commit()
 
+    def print_carts(self):
+        print(self.carts)
+
 if __name__ == '__main__':
     from pprint import pprint
     from dotenv import load_dotenv
@@ -359,3 +362,5 @@ if __name__ == '__main__':
     print("---------------------")
     di.add_inventory_stock(50, 3)
     print(di.get_inventory_items())
+    print(di.print_carts())
+    
