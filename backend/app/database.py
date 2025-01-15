@@ -221,7 +221,7 @@ class DatabaseInterface:
     def get_user_details(self, resident_id : str) -> list[tuple[str, int]]:
         query = \
         f"""
-        SELECT Resident_ID, Name, Category, Points_Balance, Contact, Suspended
+        SELECT * 
         FROM {self.users_table_name}
         WHERE Resident_ID = ?
         """
@@ -231,13 +231,27 @@ class DatabaseInterface:
     def get_list_of_users(self, users : int = None):
         query = \
         f"""
-        SELECT Resident_ID, Name, Category 
+        SELECT Resident_ID, Name, Category, Suspended
         FROM {self.users_table_name}
         """
         if users:
             query = query + f" LIMIT {users}"
         self.cursor.execute(query)
         return self.cursor.fetchall()
+    
+    def add_user(
+            self, 
+            user_id : str, 
+            user_name : str, 
+            user_category : str | int, 
+            contact : int
+            ) -> None:
+        query = f"""
+        INSERT INTO {self.users_table_name} (Resident_ID,Name,Category,Points_Balance,Contact,Suspended)
+        VALUES (?, ?, ?, 0, ?, FALSE)
+        """
+        self.cursor.execute(query, (user_id, user_name, user_category, contact))
+        self.connection.commit()
 
     def suspend_user(self, resident_id : str) -> None:
         query = \
@@ -362,7 +376,5 @@ if __name__ == '__main__':
     di.rename_group(1, 'A')
     pprint(di.get_list_of_users())
     print("---------------------")
-    di.add_inventory_stock(50, 3)
-    print(di.get_inventory_items())
-    print(di.print_carts())
-    
+    di.add_user('test', 'test', 'A', 1111)
+    print(di.get_list_of_users())
