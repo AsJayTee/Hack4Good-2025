@@ -1,9 +1,9 @@
 import os
 import math
 import sqlite3
-import datetime
 import Levenshtein
 from typing import Literal
+from datetime import datetime
 
 class DatabaseInterface:
     connection : sqlite3.Connection
@@ -181,8 +181,7 @@ class DatabaseInterface:
         query = \
         f"""
         SELECT *
-        FROM {self.orders_table_name}
-        WHERE Status != 'Pending'
+        FROM {self.admin_actions_table_name}
         ORDER BY Time DESC
         """
         if actions:
@@ -223,10 +222,10 @@ class DatabaseInterface:
             current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             insert_query = \
             f"""
-            INSERT INTO {self.orders_table_name} (Voucher_Request_ID, Resident_ID, Product_ID, Status, Time)
-            VALUES (?, ?, ?, 'Pending', ?)
+            INSERT INTO {self.orders_table_name} (Voucher_Request_ID, Resident_ID, Product_ID, Status, Time, Admin)
+            VALUES (?, ?, ?, 'Pending', ?, ?)
             """
-            self.cursor.execute(insert_query, (voucher_request_id, resident_id, product_id, current_time))
+            self.cursor.execute(insert_query, (voucher_request_id, resident_id, product_id, current_time, None))
             next_voucher_id_number += 1
         self.connection.commit()
     
@@ -272,7 +271,7 @@ class DatabaseInterface:
             contact : int
             ) -> None:
         query = f"""
-        INSERT INTO {self.users_table_name} (Resident_ID,Name,Category,Points_Balance,Contact,Suspended)
+        INSERT INTO {self.users_table_name} (Resident_ID, Name, Category, Points_Balance, Contact, Suspended)
         VALUES (?, ?, ?, 0, ?, FALSE)
         """
         self.cursor.execute(query, (user_id, user_name, user_category, contact))
@@ -422,12 +421,13 @@ class DatabaseInterface:
         self.cursor.execute(query, (product_id,))
         self.connection.commit()
     
-    def __record_admin_action(self, admin_id : str | int, message : str) -> None:
+    def __record_admin_action(self, admin_id: str | int, message: str) -> None:
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S') 
         query = f"""
-        INSERT INTO {self.admin_actions_table_name} (Admin_ID, Action_Desc)
-        VALUES (?, ?)
+        INSERT INTO {self.admin_actions_table_name} (Admin_ID, Action_Desc, Time)
+        VALUES (?, ?, ?)
         """
-        self.cursor.execute(query, (admin_id, message))
+        self.cursor.execute(query, (admin_id, message, current_time))
         self.connection.commit()
 
     def print_carts(self):
