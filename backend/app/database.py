@@ -433,6 +433,16 @@ class DatabaseInterface:
     def print_carts(self):
         print(self.carts)
 
+    def get_low_stock_products(self) -> list[tuple[str | int]]:
+        query = f"""
+        SELECT Product_Name, Product_Category, Quantity
+        FROM {self.inventory_table_name}
+        WHERE Quantity < 10
+        ORDER BY Quantity ASC
+        """
+        self.cursor.execute(query)
+        return self.cursor.fetchall()
+
 if __name__ == '__main__':
     from pprint import pprint
     from dotenv import load_dotenv
