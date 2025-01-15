@@ -12,7 +12,7 @@ class DatabaseInterface:
     products_per_page : int = 8
     orders_table_name : str = "orders_table"
     users_table_name : str = "resident_accounts_info_table"
-    carts : dict
+    carts : dict = dict()
 
     def __init__(self):
         self.connection = sqlite3.connect(os.environ.get("DATABASE_PATH"))
@@ -322,19 +322,21 @@ class DatabaseInterface:
         self.connection.commit()
 
     def create_new_product(
-            self, 
-            product_id : str | int, 
-            product_name : str, 
-            product_category : str, 
-            point_cost : int, 
-            quantity : int) -> None:
-        query = \
-        f"""
-        INSERT INTO {self.inventory_table_name} (Product_ID, Product_Name, Product_Category, Point_Cost, Quantity)
-        VALUES (?, ?, ?, ?)
+            self,
+            product_id: str | int,
+            product_name: str,
+            product_category: str,
+            point_cost: int,
+            quantity: int,
+            image: bytes
+            ) -> None:
+        query = f"""
+        INSERT INTO {self.inventory_table_name} (Product_ID, Product_Name, Product_Category, Point_Cost, Quantity, Image)
+        VALUES (?, ?, ?, ?, ?, ?)
         """
-        self.cursor.execute(query, (product_id, product_name, product_category, point_cost, quantity))
+        self.cursor.execute(query, (product_id, product_name, product_category, point_cost, quantity, image))
         self.connection.commit()
+
 
     def delete_product_from_inventory(self, product_id : str | int) -> None:
         query = \
