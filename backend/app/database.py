@@ -1,9 +1,11 @@
+import io
 import os
 import math
 import sqlite3
-import datetime
 import Levenshtein
 from typing import Literal
+import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
 
 class DatabaseInterface:
     connection : sqlite3.Connection
@@ -12,7 +14,8 @@ class DatabaseInterface:
     products_per_page : int = 8
     orders_table_name : str = "orders_table"
     users_table_name : str = "resident_accounts_info_table"
-    carts : dict
+    carts : dict = dict()
+    admin_actions_table_name : str = "admin_actions_table"
 
     def __init__(self):
         self.connection = sqlite3.connect(os.environ.get("DATABASE_PATH"))
@@ -117,15 +120,34 @@ class DatabaseInterface:
 
     def update_order(
             self, 
-            order_id : str, 
-            decision : Literal["Approved", "Denied"], 
-            admin_id : str
+            order_id: str, 
+            decision: Literal["Approved", "Denied"], 
+            admin_id: str
             ) -> None:
-        query = f"UPDATE {self.orders_table_name} " \
-            "SET Status = ?, Admin = ? WHERE Voucher_Request_ID = ?"
-        self.cursor.execute(query, (decision, admin_id, order_id))
+        self.__record_admin_action(admin_id, f"{decision} order for ORDER_ID : {order_id}")
+        select_query = f"""
+        SELECT o.Product_ID, p.Quantity
+        FROM {self.orders_table_name} o
+        JOIN {self.inventory_table_name} p
+        ON o.Product_ID = p.Product_ID
+        WHERE o.Voucher_Request_ID = ?
+        """
+        self.cursor.execute(select_query, (order_id,))
+        order = self.cursor.fetchone()
+        if order:
+            product_id, quantity_in_stock = order
+            if decision == "Approved" and quantity_in_stock > 0:
+                update_order_query = f"""
+                UPDATE {self.orders_table_name}
+                SET Status = ?, Admin = ?
+                WHERE Voucher_Request_ID = ?
+                """
+                self.cursor.execute(update_order_query, (decision, admin_id, order_id))
+                self.remove_inventory_stock(product_id, 1)
+        self.connection.commit()
     
     def approve_all_in_stock_items(self, admin_id: str) -> None:
+        self.__record_admin_action(admin_id, "Approved all in-stock items")
         select_query = \
         f"""
         SELECT o.Voucher_Request_ID, o.Product_ID, p.Quantity
@@ -149,15 +171,19 @@ class DatabaseInterface:
                 WHERE Voucher_Request_ID = ?
                 """
                 self.cursor.execute(update_order_query, (admin_id, voucher_request_id))
+                self.__record_admin_action(
+                    admin_id, 
+                    f"Approved order for ORDER_ID : {voucher_request_id}"
+                )
                 stock_updates[product_id] = current_stock - 1
+                self.remove_inventory_stock(product_id, 1)
         self.connection.commit()
     
     def get_admin_action_history(self, actions : int = None) -> list[tuple]:
         query = \
         f"""
         SELECT *
-        FROM {self.orders_table_name}
-        WHERE Status != 'Pending'
+        FROM {self.admin_actions_table_name}
         ORDER BY Time DESC
         """
         if actions:
@@ -181,7 +207,7 @@ class DatabaseInterface:
     def checkout_cart(self, resident_id : str) -> None:
         self.__make_orders(resident_id, self.carts.pop(resident_id))
 
-    def __make_orders(self, resident_id: str, product_ids: list[int]) -> None:
+    def make_orders(self, resident_id: str, product_ids: list[int]) -> None:
         select_max_query = \
         f"""
         SELECT MAX(CAST(SUBSTRING(Voucher_Request_ID, 2, LENGTH(Voucher_Request_ID)) AS UNSIGNED)) 
@@ -198,10 +224,10 @@ class DatabaseInterface:
             current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             insert_query = \
             f"""
-            INSERT INTO {self.orders_table_name} (Voucher_Request_ID, Resident_ID, Product_ID, Status, Time)
-            VALUES (?, ?, ?, 'Pending', ?)
+            INSERT INTO {self.orders_table_name} (Voucher_Request_ID, Resident_ID, Product_ID, Status, Time, Admin)
+            VALUES (?, ?, ?, 'Pending', ?, ?)
             """
-            self.cursor.execute(insert_query, (voucher_request_id, resident_id, product_id, current_time))
+            self.cursor.execute(insert_query, (voucher_request_id, resident_id, product_id, current_time, None))
             next_voucher_id_number += 1
         self.connection.commit()
     
@@ -221,7 +247,7 @@ class DatabaseInterface:
     def get_user_details(self, resident_id : str) -> list[tuple[str, int]]:
         query = \
         f"""
-        SELECT Resident_ID, Name, Category, Points_Balance, Contact, Suspended
+        SELECT * 
         FROM {self.users_table_name}
         WHERE Resident_ID = ?
         """
@@ -231,13 +257,27 @@ class DatabaseInterface:
     def get_list_of_users(self, users : int = None):
         query = \
         f"""
-        SELECT Resident_ID, Name, Category 
+        SELECT Resident_ID, Name, Category, Suspended
         FROM {self.users_table_name}
         """
         if users:
             query = query + f" LIMIT {users}"
         self.cursor.execute(query)
         return self.cursor.fetchall()
+    
+    def add_user(
+            self, 
+            user_id : str, 
+            user_name : str, 
+            user_category : str | int, 
+            contact : int
+            ) -> None:
+        query = f"""
+        INSERT INTO {self.users_table_name} (Resident_ID, Name, Category, Points_Balance, Contact, Suspended)
+        VALUES (?, ?, ?, 0, ?, FALSE)
+        """
+        self.cursor.execute(query, (user_id, user_name, user_category, contact))
+        self.connection.commit()
 
     def suspend_user(self, resident_id : str) -> None:
         query = \
@@ -289,6 +329,26 @@ class DatabaseInterface:
         """
         self.cursor.execute(query, (old_group, new_group))
         self.connection.commit()
+    
+    def give_user_points(self, user_id : str, points : int) -> None:
+        query = \
+        f"""
+        UPDATE {self.users_table_name} 
+        SET Points_Balance = Points_Balance + ?
+        WHERE Resident_ID = ?
+        """
+        self.cursor.execute(query, (points, user_id))
+        self.connection.commit()
+    
+    def give_group_points(self, group : str | int, points : int) -> None:
+        query = \
+        f"""
+        UPDATE {self.users_table_name} 
+        SET Points_Balance = Points_Balance + ?
+        WHERE Category = ?
+        """
+        self.cursor.execute(query, (points, group))
+        self.connection.commit()
 
     def get_inventory_items(self) -> list[tuple[str, int]]:
         query = \
@@ -303,7 +363,11 @@ class DatabaseInterface:
         self.cursor.execute(query)
         return self.cursor.fetchall()
 
-    def add_inventory_stock(self, product_id : int, quantity : int) -> None:
+    def add_inventory_stock(self, admin_id : str | int, product_id : int, quantity : int) -> None:
+        self.__record_admin_action(
+            admin_id, 
+            f"Incremented inventory count for product with PRODUCT ID: {product_id} by {quantity}"
+        )
         query = f"""
         UPDATE {self.inventory_table_name} 
         SET Quantity = Quantity + ? 
@@ -312,7 +376,11 @@ class DatabaseInterface:
         self.cursor.execute(query, (quantity, product_id))
         self.connection.commit()
 
-    def remove_inventory_stock(self, product_id : int, quantity : int) -> None:
+    def remove_inventory_stock(self, admin_id : str | int, product_id : int, quantity : int) -> None:
+        self.__record_admin_action(
+            admin_id, 
+            f"Deducted inventory count for product with PRODUCT ID: {product_id} by {quantity}"
+        )
         query = f"""
         UPDATE {self.inventory_table_name} 
         SET Quantity = Quantity - ? 
@@ -322,21 +390,31 @@ class DatabaseInterface:
         self.connection.commit()
 
     def create_new_product(
-            self, 
-            product_id : str | int, 
-            product_name : str, 
-            product_category : str, 
-            point_cost : int, 
-            quantity : int) -> None:
-        query = \
-        f"""
-        INSERT INTO {self.inventory_table_name} (Product_ID, Product_Name, Product_Category, Point_Cost, Quantity)
-        VALUES (?, ?, ?, ?)
+            self,
+            admin_id : str | int, 
+            product_id: str | int,
+            product_name: str,
+            product_category: str,
+            point_cost: int,
+            quantity: int,
+            image: bytes
+            ) -> None:
+        self.__record_admin_action(
+            admin_id, 
+            f"Created new product with PRODUCT ID: {product_id}"
+        )
+        query = f"""
+        INSERT INTO {self.inventory_table_name} (Product_ID, Product_Name, Product_Category, Point_Cost, Quantity, Image)
+        VALUES (?, ?, ?, ?, ?, ?)
         """
-        self.cursor.execute(query, (product_id, product_name, product_category, point_cost, quantity))
+        self.cursor.execute(query, (product_id, product_name, product_category, point_cost, quantity, image))
         self.connection.commit()
 
-    def delete_product_from_inventory(self, product_id : str | int) -> None:
+    def delete_product_from_inventory(self, admin_id : str | int, product_id : str | int) -> None:
+        self.__record_admin_action(
+            admin_id, 
+            f"Deleted old product with PRODUCT ID: {product_id}"
+        )
         query = \
         f"""
         DELETE FROM {self.inventory_table_name}
@@ -344,7 +422,57 @@ class DatabaseInterface:
         """
         self.cursor.execute(query, (product_id,))
         self.connection.commit()
+    
+    def __record_admin_action(self, admin_id: str | int, message: str) -> None:
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S') 
+        query = f"""
+        INSERT INTO {self.admin_actions_table_name} (Admin_ID, Action_Desc, Time)
+        VALUES (?, ?, ?)
+        """
+        self.cursor.execute(query, (admin_id, message, current_time))
+        self.connection.commit()
 
+    def get_low_stock_products(self) -> list[tuple[str | int]]:
+        query = f"""
+        SELECT Product_Name, Product_Category, Quantity
+        FROM {self.inventory_table_name}
+        WHERE Quantity < 10
+        ORDER BY Quantity ASC
+        """
+        self.cursor.execute(query)
+        return self.cursor.fetchall()
+    
+    def get_in_demand_products(self) -> bytes: 
+        one_week_ago = datetime.now() - timedelta(weeks=1)
+        one_week_ago_str = one_week_ago.strftime('%Y-%m-%d %H:%M:%S')
+        query = f"""
+        SELECT o.Product_ID, p.Product_Name, COUNT(*) as product_count
+        FROM {self.orders_table_name} o
+        JOIN {self.inventory_table_name} p ON o.Product_ID = p.Product_ID
+        WHERE o.Time >= ?
+        GROUP BY o.Product_ID, p.Product_Name
+        ORDER BY product_count DESC
+        """
+        self.cursor.execute(query, (one_week_ago_str,))
+        product_counts = self.cursor.fetchall()
+        if not product_counts:
+            fig, ax = plt.subplots()
+            ax.pie([1], labels=["No Data"], autopct='%1.1f%%')
+            ax.set_title("No orders in the last week")
+            return self.figure_to_blob(fig)
+        product_names = [product[1] for product in product_counts]
+        counts = [product[2] for product in product_counts]
+        fig, ax = plt.subplots()
+        ax.pie(counts, labels=product_names, autopct='%1.1f%%', startangle=90)
+        ax.set_title("Most Popular Products in the Last Week")
+        return self.figure_to_blob(fig)
+
+    def figure_to_blob(self, fig : plt.Figure) -> bytes:
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png")
+        buf.seek(0) 
+        return buf.read()
+    
     def print_carts(self):
         print(self.carts)
 
@@ -360,7 +488,14 @@ if __name__ == '__main__':
     di.rename_group(1, 'A')
     pprint(di.get_list_of_users())
     print("---------------------")
-    di.add_inventory_stock(50, 3)
-    print(di.get_inventory_items())
-    print(di.print_carts())
-    
+    print(di.get_user_details('A'))
+    di.give_user_points('A', 3)
+    print(di.get_user_details('A'))
+    print("---------------------")
+    print(di.make_orders('A', [3,4,5]))
+    from PIL import Image
+    img = Image.open(io.BytesIO(di.get_popular_products_last_week()))
+    plt.figure(figsize=(8, 8))
+    plt.imshow(img)
+    plt.axis('off') 
+    plt.show()
