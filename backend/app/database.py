@@ -16,6 +16,7 @@ class DatabaseInterface:
     users_table_name : str = "resident_accounts_info_table"
     carts : dict = dict()
     admin_actions_table_name : str = "admin_actions_table"
+    new_coupons_table_name : str = "new_coupons_table"
 
     def __init__(self):
         self.connection = sqlite3.connect(os.environ.get("DATABASE_PATH"))
@@ -339,6 +340,12 @@ class DatabaseInterface:
         """
         self.cursor.execute(query, (points, user_id))
         self.connection.commit()
+        insert_query = f"""
+        INSERT INTO {self.new_coupons_table_name} (Resident_ID, New_Coupon_Amount)
+        VALUES (?, ?)
+        """
+        self.cursor.execute(insert_query, (user_id, points))
+        self.connection.commit()
     
     def give_group_points(self, group : str | int, points : int) -> None:
         query = \
@@ -349,6 +356,31 @@ class DatabaseInterface:
         """
         self.cursor.execute(query, (points, group))
         self.connection.commit()
+        insert_query = f"""
+        INSERT INTO {self.new_coupons_table_name} (Resident_ID, New_Coupon_Amount)
+        SELECT Resident_ID, ? 
+        FROM {self.users_table_name}
+        WHERE Category = ?
+        """
+        self.cursor.execute(insert_query, (points, group))
+        self.connection.commit()
+
+    def get_received_coupons(self, user_id: str) -> list[int]:
+        query = f"""
+        SELECT New_Coupon_Amount
+        FROM {self.new_coupons_table_name}
+        WHERE Resident_ID = ?
+        """
+        self.cursor.execute(query, (user_id,))
+        coupons = self.cursor.fetchall() 
+        if coupons:
+            delete_query = f"""
+            DELETE FROM {self.new_coupons_table_name}
+            WHERE Resident_ID = ?
+            """
+            self.cursor.execute(delete_query, (user_id,))
+            self.connection.commit()
+        return [coupon[0] for coupon in coupons]
 
     def get_inventory_items(self) -> list[tuple[str, int]]:
         query = \
@@ -492,10 +524,11 @@ if __name__ == '__main__':
     di.give_user_points('A', 3)
     print(di.get_user_details('A'))
     print("---------------------")
-    print(di.make_orders('A', [3,4,5]))
-    from PIL import Image
-    img = Image.open(io.BytesIO(di.get_popular_products_last_week()))
-    plt.figure(figsize=(8, 8))
-    plt.imshow(img)
-    plt.axis('off') 
-    plt.show()
+    di.give_user_points('C', 3)
+    di.give_user_points('C', 3)
+    print(di.get_received_coupons('A'))
+    print(di.get_received_coupons('A'))
+    print(di.get_received_coupons('C'))
+    print(di.get_received_coupons('C'))
+    print(di.get_received_coupons('C'))
+    print(di.get_received_coupons('B'))
