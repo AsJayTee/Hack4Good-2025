@@ -1,9 +1,11 @@
+import io
 import os
 import math
 import sqlite3
 import Levenshtein
 from typing import Literal
-from datetime import datetime
+import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
 
 class DatabaseInterface:
     connection : sqlite3.Connection
@@ -205,7 +207,7 @@ class DatabaseInterface:
     def checkout_cart(self, resident_id : str) -> None:
         self.__make_orders(resident_id, self.carts.pop(resident_id))
 
-    def __make_orders(self, resident_id: str, product_ids: list[int]) -> None:
+    def make_orders(self, resident_id: str, product_ids: list[int]) -> None:
         select_max_query = \
         f"""
         SELECT MAX(CAST(SUBSTRING(Voucher_Request_ID, 2, LENGTH(Voucher_Request_ID)) AS UNSIGNED)) 
@@ -430,9 +432,6 @@ class DatabaseInterface:
         self.cursor.execute(query, (admin_id, message, current_time))
         self.connection.commit()
 
-    def print_carts(self):
-        print(self.carts)
-
     def get_low_stock_products(self) -> list[tuple[str | int]]:
         query = f"""
         SELECT Product_Name, Product_Category, Quantity
@@ -442,6 +441,40 @@ class DatabaseInterface:
         """
         self.cursor.execute(query)
         return self.cursor.fetchall()
+    
+    def get_in_demand_products(self) -> bytes: 
+        one_week_ago = datetime.now() - timedelta(weeks=1)
+        one_week_ago_str = one_week_ago.strftime('%Y-%m-%d %H:%M:%S')
+        query = f"""
+        SELECT o.Product_ID, p.Product_Name, COUNT(*) as product_count
+        FROM {self.orders_table_name} o
+        JOIN {self.inventory_table_name} p ON o.Product_ID = p.Product_ID
+        WHERE o.Time >= ?
+        GROUP BY o.Product_ID, p.Product_Name
+        ORDER BY product_count DESC
+        """
+        self.cursor.execute(query, (one_week_ago_str,))
+        product_counts = self.cursor.fetchall()
+        if not product_counts:
+            fig, ax = plt.subplots()
+            ax.pie([1], labels=["No Data"], autopct='%1.1f%%')
+            ax.set_title("No orders in the last week")
+            return self.figure_to_blob(fig)
+        product_names = [product[1] for product in product_counts]
+        counts = [product[2] for product in product_counts]
+        fig, ax = plt.subplots()
+        ax.pie(counts, labels=product_names, autopct='%1.1f%%', startangle=90)
+        ax.set_title("Most Popular Products in the Last Week")
+        return self.figure_to_blob(fig)
+
+    def figure_to_blob(self, fig : plt.Figure) -> bytes:
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png")
+        buf.seek(0) 
+        return buf.read()
+    
+    def print_carts(self):
+        print(self.carts)
 
 if __name__ == '__main__':
     from pprint import pprint
@@ -458,3 +491,11 @@ if __name__ == '__main__':
     print(di.get_user_details('A'))
     di.give_user_points('A', 3)
     print(di.get_user_details('A'))
+    print("---------------------")
+    print(di.make_orders('A', [3,4,5]))
+    from PIL import Image
+    img = Image.open(io.BytesIO(di.get_popular_products_last_week()))
+    plt.figure(figsize=(8, 8))
+    plt.imshow(img)
+    plt.axis('off') 
+    plt.show()
