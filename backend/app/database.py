@@ -303,6 +303,26 @@ class DatabaseInterface:
         """
         self.cursor.execute(query, (old_group, new_group))
         self.connection.commit()
+    
+    def give_user_points(self, user_id : str, points : int) -> None:
+        query = \
+        f"""
+        UPDATE {self.users_table_name} 
+        SET Points_Balance = Points_Balance + ?
+        WHERE Resident_ID = ?
+        """
+        self.cursor.execute(query, (points, user_id))
+        self.connection.commit()
+    
+    def give_group_points(self, group : str | int, points : int) -> None:
+        query = \
+        f"""
+        UPDATE {self.users_table_name} 
+        SET Points_Balance = Points_Balance + ?
+        WHERE Category = ?
+        """
+        self.cursor.execute(query, (points, group))
+        self.connection.commit()
 
     def get_inventory_items(self) -> list[tuple[str, int]]:
         query = \
@@ -351,7 +371,6 @@ class DatabaseInterface:
         self.cursor.execute(query, (product_id, product_name, product_category, point_cost, quantity, image))
         self.connection.commit()
 
-
     def delete_product_from_inventory(self, product_id : str | int) -> None:
         query = \
         f"""
@@ -376,5 +395,6 @@ if __name__ == '__main__':
     di.rename_group(1, 'A')
     pprint(di.get_list_of_users())
     print("---------------------")
-    di.add_user('test', 'test', 'A', 1111)
-    print(di.get_list_of_users())
+    print(di.get_user_details('A'))
+    di.give_user_points('A', 3)
+    print(di.get_user_details('A'))
