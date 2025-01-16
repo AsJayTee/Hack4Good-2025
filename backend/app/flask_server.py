@@ -1,7 +1,17 @@
 from flask import Flask, request, jsonify
 import database #imports the database.py file
+import base64
 app = Flask(__name__)
-#db_interface = database.DatabaseInterface()
+#db_interface = database.DatabaseInterface() #doesnt work
+def convert_blob_to_base64(product_list):
+    converted_products = []
+    for product in product_list:
+        # Convert the blob data to a base64 encoded string
+        base64_image = base64.b64encode(product[-1]).decode('utf-8')
+        # Create a new product tuple with the base64 encoded image
+        product_tuple = product[:-1] + (base64_image,)
+        converted_products.append(product_tuple)
+    return converted_products
 
 @app.route('/getProducts', methods=['GET']) 
 #GET here means only HTTP GET requests are allowed for this URL ending with /getProducts 
@@ -12,6 +22,7 @@ app = Flask(__name__)
 def get_products():
     pageNum = request.args.get('pageNum', default=1, type=int) # Extract pageNum from query parameters, with a default value of 1 if not provided
     products = database.DatabaseInterface().get_products(pageNum)
+    products=convert_blob_to_base64(products)
     response = jsonify(products)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
@@ -106,6 +117,7 @@ def get_products_by_category():
     if not category:
         return jsonify({'error': 'Category is required'}), 400
     products = database.DatabaseInterface().get_products_by_category(category)
+    products=convert_blob_to_base64(products)
     return jsonify(products)
 #test
 if __name__ == "__main__":
