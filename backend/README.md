@@ -74,7 +74,7 @@ This Flask application provides endpoints for managing a grocery store system. I
   {
     "resident_id": "<resident_id>",
     "product_id": "<product_id>",
-    "quantity": "<quantity (optional, default=1)>"
+    "quantity": "<quantity>"
   }
   ```
 - **Response**:
