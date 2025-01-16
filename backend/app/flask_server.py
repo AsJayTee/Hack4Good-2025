@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
+import io
 import database #imports the database.py file
 import base64
 app = Flask(__name__)
@@ -120,12 +121,28 @@ def get_products_by_category():
     products=convert_blob_to_base64(products)
     return jsonify(products)
 
+@app.route('/getAllProducts', methods=['GET'])
+def get_all_products():
+    try:
+        products = database.DatabaseInterface().get_all_products()
+        products=convert_blob_to_base64(products)
+        response = jsonify(products)
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 @app.route('/get_in_demand_products', methods=['GET'])
 def get_in_demand_products():
     try:
         image_blob = database.DatabaseInterface().get_in_demand_products()
-        return send_file(io.BytesIO(image_blob), mimetype='image/png')
+        if not image_blob:
+            return jsonify({"error": "No image data found."}), 404
+        base64_image = base64.b64encode(image_blob).decode('utf-8')
+        return jsonify({"image": base64_image})
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 @app.route('/get_low_stock_products', methods=['GET'])
@@ -135,6 +152,7 @@ def get_low_stock_products():
         return jsonify(products)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     from dotenv import load_dotenv
