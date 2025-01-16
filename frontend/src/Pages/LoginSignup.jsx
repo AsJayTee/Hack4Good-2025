@@ -1,25 +1,84 @@
-import React from 'react'
-import './CSS/LoginSignup.css'
+import React, { useState } from 'react';
+import { supabase } from '../Components/user_auth/client'; // Import your Supabase client
 
-const LoginSignup = () => {
-    return (
-        <div className='loginsignup'>
-            <div className='loginsignup-container'>
-                <h1>Sign Up</h1>
-                <div className='loginsignup-fields'>
-                    <input type="text" placeholder="Your Name"/>
-                    <input type="email" placeholder="Email Address"/>
-                    <input type="password" placeholder='Password'/>
-                </div>
-                <button>Continue</button>
-                <p className='loginsignup-login'>Already have an account? <span>Login here</span></p>
-                <div className='loginsignup-agree'>
-                    <input type="checkbox" name="" id=""/>
-                    <p>By continuing, I agree to the terms of use & privacy policy.</p>
-                </div>
-            </div>
-        </div>
-    )
+function SignUpPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [phoneNum, setPhoneNum] = useState('');
+  const [role, setRole] = useState('user'); // or 'admin'
+
+  async function handleSignUp(event) {
+    event.preventDefault();
+    const userData = {
+      phoneNum,
+      role,
+      name,
+      points: 0, // default points
+    };
+    
+    const data = await signUpUser(email, password, userData);
+    if (data) {
+      console.log('User signed up:', data);
+    } else {
+      alert('Sign-up failed. Please try again.');
+    }
+  }
+
+  async function signUpUser(email, password, userData) {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: userData,
+        },
+      });
+
+      if (error) {
+        console.error('Error signing up user:', error.message);
+        return null;
+      }
+
+      return data;
+    } catch (err) {
+      console.error('Unexpected error:', err);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSignUp}>
+      <input
+        type="text"
+        placeholder="Full Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        required
+      />
+      <input
+        type="text"
+        placeholder="Phone Number"
+        value={phoneNum}
+        onChange={(e) => setPhoneNum(e.target.value)}
+        required
+      />
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+      <button type="submit">Sign Up</button>
+    </form>
+  );
 }
 
-export default LoginSignup
+export default SignUpPage;

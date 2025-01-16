@@ -5,6 +5,9 @@
 //can consider writing in error handling for this function
 
 //write code <form onSubmit=add_user> or smth to that effect
+
+import {supabase} from './client'
+
 async function add_user(){
     const { data, error } = await supabase.auth.signUp({
         email: 'example@email.com', //un-hardcode this, change it to the var containing what the manager enters
@@ -13,7 +16,7 @@ async function add_user(){
             data: {
               phoneNum: 12345678 //un-hardcode this
               role: 'user'
-              name:
+              name: 
               category:
               points:
             }
