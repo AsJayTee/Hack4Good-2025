@@ -119,7 +119,23 @@ def get_products_by_category():
     products = database.DatabaseInterface().get_products_by_category(category)
     products=convert_blob_to_base64(products)
     return jsonify(products)
-#test
+
+@app.route('/get_in_demand_products', methods=['GET'])
+def get_in_demand_products():
+    try:
+        image_blob = database.DatabaseInterface().get_in_demand_products()
+        return send_file(io.BytesIO(image_blob), mimetype='image/png')
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/get_low_stock_products', methods=['GET'])
+def get_low_stock_products():
+    try:
+        products = database.DatabaseInterface().get_low_stock_products()
+        return jsonify(products)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv()   
