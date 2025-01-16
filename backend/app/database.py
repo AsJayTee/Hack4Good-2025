@@ -265,6 +265,19 @@ class DatabaseInterface:
         self.cursor.execute(query, (resident_id,))
         return self.cursor.fetchone()
     
+    def get_user_role(self, resident_id : str) -> Literal["admin", "user"]:
+        query = \
+        f"""
+        SELECT Category 
+        FROM {self.users_table_name}
+        WHERE Resident_ID = ?
+        """
+        self.cursor.execute(query, (resident_id,))
+        if self.cursor.fetchone()[0] == "admin":
+            return "admin"
+        else:
+            return "user"
+    
     def get_list_of_users(self, users : int = None, admin_mode : bool = False):
         queries = [
             f"""
