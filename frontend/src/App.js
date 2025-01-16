@@ -5,7 +5,7 @@ import Shop from './Pages/Shop';
 import ShopCategory from './Pages/ShopCategory';
 import Product from './Pages/Product';
 import Cart from './Pages/Cart'; // Import the Cart component
-import LoginSignup from './Pages/LoginSignup';
+import Login from './Pages/Login';
 import Footer from './Components/Footer/Footer';
 import Userprofile from './Pages/Userprofile';
 import { useState, useEffect } from 'react';
@@ -27,6 +27,7 @@ function App() {
         <Routes>
           {/* Define Routes */}
           <Route path='/' element={<Shop />} />
+          <Route path='/Shop' element={<Shop />} />
           <Route path='/Food' element={<ShopCategory category="Food" />} />
           <Route path='/Fruit' element={<ShopCategory category="Fruit" />} />
           <Route path='/Snacks' element={<ShopCategory category="Snacks" />} />
@@ -37,7 +38,7 @@ function App() {
           </Route>
           <Route path='/cart' element={<Cart setCartCount={setCartCount} />} /> {/* Pass setCartCount to Cart */}
           <Route path='/userprofile' element={<Userprofile />} />
-          <Route path='/login' element={<LoginSignup />} />
+          <Route path='/login' element={<Login />} />
         </Routes>
         <Footer />
       </BrowserRouter>

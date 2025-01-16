@@ -1,3 +1,4 @@
+/*All the other user data shld be passed to JT's SQL */
 import React, { useState } from 'react';
 import { supabase } from '../Components/user_auth/client'; // Import your Supabase client
 
@@ -37,12 +38,16 @@ function SignUpPage() {
 
       if (error) {
         console.error('Error signing up user:', error.message);
+        alert(`Sign-up failed: ${error.message}`);
         return null;
       }
 
+      // Log and return the data on success
+      console.log('Sign-up success:', data);
       return data;
     } catch (err) {
-      console.error('Unexpected error:', err);
+      console.error('Unexpected error during sign-up:', err);
+      alert(`Unexpected error: ${err.message}`);
     }
   }
 
