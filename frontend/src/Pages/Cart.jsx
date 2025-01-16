@@ -1,69 +1,63 @@
-// CartPage.js
 import React, { useEffect, useState } from 'react';
 import './CSS/Cart.css';
 
-const CartPage = () => {
+const CartPage = ({ setCartCount }) => {
   const [cartItems, setCartItems] = useState([]);
-  const [originalPoints, setOriginalPoints] = useState(80); // Set the original points balance
-  const [remainingPoints, setRemainingPoints] = useState(originalPoints); // This will be updated dynamically
+  const [originalPoints, setOriginalPoints] = useState(80);
+  const [remainingPoints, setRemainingPoints] = useState(originalPoints);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Load cart from localStorage when CartPage is loaded
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
-    
-    // Initialize the quantity for each item if it doesn't exist
     const cartWithQuantity = storedCart.map(item => ({
       ...item,
-      quantity: item.quantity || 1, // default quantity is 1
+      quantity: item.quantity || 1,
     }));
     setCartItems(cartWithQuantity);
-    
-    // Recalculate remaining points based on the cart items
+
     const totalCost = cartWithQuantity.reduce((total, item) => total + (item.price * item.quantity), 0);
     setRemainingPoints(originalPoints - totalCost);
-  }, []);
 
-  // Function to remove an item from the cart
+    // Update cart count in Navbar
+    const totalItems = cartWithQuantity.reduce((total, item) => total + item.quantity, 0);
+    setCartCount(totalItems);
+  }, [setCartCount]);
+
   const removeItem = (id) => {
     const updatedCart = cartItems.filter(item => item.id !== id);
     const removedItem = cartItems.find(item => item.id === id);
-
-    // Recalculate remaining points after removal
     const updatedRemainingPoints = remainingPoints + (removedItem ? removedItem.price * removedItem.quantity : 0);
-    
+
     setCartItems(updatedCart);
-    setRemainingPoints(updatedRemainingPoints); // Update remaining points after removal
-    // Save the updated cart and points to localStorage
+    setRemainingPoints(updatedRemainingPoints);
+
     localStorage.setItem('cart', JSON.stringify(updatedCart));
+
+    const totalItems = updatedCart.reduce((total, item) => total + item.quantity, 0);
+    setCartCount(totalItems);
   };
 
-  // Function to update item quantity
   const updateQuantity = (id, quantity) => {
-    // Prevent quantity from going below 1
     if (quantity < 1) return;
-    
-    const updatedCart = cartItems.map(item => 
-      item.id === id ? { ...item, quantity } : item
-    );
+    const updatedCart = cartItems.map(item => item.id === id ? { ...item, quantity } : item);
     setCartItems(updatedCart);
-    // Recalculate total cost and update remaining points
+
     const totalCost = updatedCart.reduce((total, item) => total + (item.price * item.quantity), 0);
     setRemainingPoints(originalPoints - totalCost);
-    // Save the updated cart to localStorage
+
     localStorage.setItem('cart', JSON.stringify(updatedCart));
+
+    const totalItems = updatedCart.reduce((total, item) => total + item.quantity, 0);
+    setCartCount(totalItems);
   };
 
-  // Calculate total cost of the cart
   const totalCost = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
 
-  // Handle checkout
   const handleCheckout = () => {
     if (remainingPoints < 0) {
       setErrorMessage('Insufficient points to complete the purchase.');
     } else {
       setErrorMessage('');
-      // Proceed to checkout logic here (e.g., redirect to payment page)
     }
   };
 
@@ -82,7 +76,7 @@ const CartPage = () => {
               <p>Total Cost: {item.price * item.quantity} points</p>
               <p>Quantity: 
                 <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1}>-</button>
-                 {item.quantity} 
+                {item.quantity}
                 <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
               </p>
               <button className="remove-button" onClick={() => removeItem(item.id)}>

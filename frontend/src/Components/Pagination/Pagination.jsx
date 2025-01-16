@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import placeholder_image from '../Assets/fruit-apple.png';
 import '../Pagination/Pagination.css';
 
 const ProductsPage = ({ searchQuery, selectedCategory }) => {
@@ -18,7 +17,7 @@ const ProductsPage = ({ searchQuery, selectedCategory }) => {
       name: product[1],
       category: product[2],
       quantity: 1,
-      price: product[3], // Correct price mapping
+      price: product[3],
     };
 
     const existingItemIndex = cart.findIndex(item => item.id === newProduct.id);
@@ -48,7 +47,6 @@ const ProductsPage = ({ searchQuery, selectedCategory }) => {
   };
 
   useEffect(() => {
-    // Fetch all items when category is 'shop' or empty, otherwise fetch by category
     if (selectedCategory === "shop" || !selectedCategory) {
       fetchProducts(pageNum, searchQuery, ""); // Empty string for 'shop' or no category
     } else {
@@ -58,6 +56,11 @@ const ProductsPage = ({ searchQuery, selectedCategory }) => {
 
   const handleNextPage = () => setPageNum((prevPage) => prevPage + 1);
   const handlePrevPage = () => setPageNum((prevPage) => Math.max(prevPage - 1, 1));
+
+  const convertToBase64 = (imageBlob) => {
+    // Converting the image blob to a base64 string
+    return `data:image/png;base64,${imageBlob}`;
+  };
 
   return (
     <div>
@@ -70,7 +73,11 @@ const ProductsPage = ({ searchQuery, selectedCategory }) => {
         {products.map((product) => (
           <div key={product[0]} className="product-item">
             <h2>{product[1]}</h2>
-            <img className="product-image" src={placeholder_image} alt="" />
+            <img 
+              className="product-image" 
+              src={convertToBase64(product[5])} 
+              alt={product[1]} 
+            />
             <p><strong>Category:</strong> {product[2]}</p>
             <p><strong>Available Quantity:</strong> {product[4]}</p>
             <p><strong>Price:</strong> {product[3]} points</p>

@@ -8,24 +8,34 @@ import Cart from './Pages/Cart'; // Import the Cart component
 import LoginSignup from './Pages/LoginSignup';
 import Footer from './Components/Footer/Footer';
 import Userprofile from './Pages/Userprofile';
+import { useState, useEffect } from 'react';
 
 function App() {
+  const [cartCount, setCartCount] = useState(0);
+
+  // Update cartCount from localStorage on app load
+  useEffect(() => {
+    const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
+    const totalItems = storedCart.reduce((total, item) => total + item.quantity, 0);
+    setCartCount(totalItems);
+  }, []);
+
   return (
     <div>
       <BrowserRouter>
-        <Navbar />
+        <Navbar cartCount={cartCount} /> {/* Pass cartCount to Navbar */}
         <Routes>
           {/* Define Routes */}
           <Route path='/' element={<Shop />} />
           <Route path='/Food' element={<ShopCategory category="Food" />} />
-          <Route path='/Fruits' element={<ShopCategory category="Fruits" />} />
+          <Route path='/Fruit' element={<ShopCategory category="Fruit" />} />
           <Route path='/Snacks' element={<ShopCategory category="Snacks" />} />
           <Route path='/Drinks' element={<ShopCategory category="Drinks" />} />
           <Route path='/Toiletries' element={<ShopCategory category="Toiletries" />} />
           <Route path='/product' element={<Product />}>
             <Route path=':productID' element={<Product />} />
           </Route>
-          <Route path='/cart' element={<Cart />} /> {/* Cart Page Route */}
+          <Route path='/cart' element={<Cart setCartCount={setCartCount} />} /> {/* Pass setCartCount to Cart */}
           <Route path='/userprofile' element={<Userprofile />} />
           <Route path='/login' element={<LoginSignup />} />
         </Routes>
