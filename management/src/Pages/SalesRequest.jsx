@@ -5,10 +5,10 @@ import "./CSS/SalesRequest.css";
 const SalesRequest = () => {
   // Hardcoded list of sales requests
   const [requests, setRequests] = useState([
-    { id: 1,name:"Alice", item: "Cheese",quantity: 3, nature: "Normal" },
+    { id: 4,name:"Alice", item: "Cheese",quantity: 3, nature: "Normal" },
     { id: 2, name:"Bob",item: "Toothpaste",quantity: 3, nature: "Pre-ordered" },
     { id: 3, name:"Cherry",item: "Apple",quantity:3, nature: "Normal" },
-    { id: 4, name:"Daniel",item: "Banana",quantity:3, nature: "Pre-ordered" }
+    { id: 1, name:"Daniel",item: "Banana",quantity:3, nature: "Pre-ordered" }
   ]);
 
   // Filter for nature type
@@ -65,8 +65,8 @@ const SalesRequest = () => {
         <label>Filter by Nature: </label>
         <select onChange={(e) => setFilter(e.target.value)} value={filter}>
           <option value="all">All</option>
-          <option value="normal">Normal</option>
-          <option value="pre-ordered">Pre-ordered</option>
+          <option value="Normal">Normal</option>
+          <option value="Pre-ordered">Pre-ordered</option>
         </select>
       </div>
 
@@ -76,7 +76,6 @@ const SalesRequest = () => {
           <tr>
             <th>Name</th>
             <th>Item</th>
-            <th>Quantity</th>
             <th>Nature</th>
             <th>Actions</th>
           </tr>
@@ -86,7 +85,6 @@ const SalesRequest = () => {
             <tr key={request.id}>
               <td>{request.name}</td>
               <td>{request.item}</td>
-              <td>{request.quantity}</td>
               <td>{request.nature}</td>
               <td>
                 <button

@@ -3,7 +3,6 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import "./CSS/Analytics.css";
 import piechart from '../Components/Assets/piechart.png'
-import donut from '../Components/Assets/dummypic1.png'
 import logo from '../Components/Assets/logo.png'
 const Analytics = () => {
   const pdfRef = useRef(); // Reference to the content for PDF export
@@ -45,13 +44,10 @@ const Analytics = () => {
         {/* Two images side by side */}
         <div className="image-container">
           <div className="image-wrapper">
-            <h3>Pie chart</h3>
+            <h2>Pie chart</h2>
             <img src={piechart} alt="piechart"/>
           </div>
-          <div className="image-wrapper">
-            <h3>Donut chart</h3>
-            <img src={donut} alt="donut chart" />
-          </div>
+          
         </div>
 
         {/* Table for out-of-stock items */}

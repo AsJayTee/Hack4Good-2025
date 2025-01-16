@@ -19,8 +19,7 @@
   }
   
   .image-wrapper img {
-    width:80%;
-    max-width: 100%;
+    width:50%;
     height: auto;
     border: 1px solid #ccc;
     border-radius: 8px;

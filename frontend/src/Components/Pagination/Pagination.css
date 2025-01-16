@@ -33,7 +33,7 @@
 }
 
 .product-image {
-  width: 100%; /* Make the image responsive */
+  width: 60%; /* Make the image responsive */
   height: 200px; /* Fixed height for uniformity */
   object-fit: contains; /* Maintain aspect ratio, crop if necessary */
   border-radius: 8px; /* Rounded corners for images */
