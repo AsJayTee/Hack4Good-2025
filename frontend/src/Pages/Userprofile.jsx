@@ -4,7 +4,7 @@ import profile_icon from '../Components/Assets/profile-user.png';
 
 const Userprofile = () => {
     const user = {
-        name: 'Snoopy Jin Thau',
+        name: 'Snoopy',
         id: 'C8888',
         points: 80
     };
