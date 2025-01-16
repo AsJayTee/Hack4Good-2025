@@ -49,6 +49,11 @@ class DatabaseInterface:
         self.cursor.execute(query)
         return self.cursor.fetchall()
 
+    def get_all_products(self) -> list[tuple[str, int]]:
+        query = f"SELECT * FROM {self.inventory_table_name}"
+        self.cursor.execute(query)
+        return self.cursor.fetchall()
+
     def get_products(
             self, 
             page : int, 
