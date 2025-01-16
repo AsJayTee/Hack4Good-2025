@@ -265,29 +265,35 @@ class DatabaseInterface:
         self.cursor.execute(query, (resident_id,))
         return self.cursor.fetchone()
     
-    def get_list_of_users(self, users : int = None):
-        query = \
-        f"""
-        SELECT Resident_ID, Name, Category, Suspended
-        FROM {self.users_table_name}
-        """
+    def get_list_of_users(self, users : int = None, admin_mode : bool = False):
+        queries = [
+            f"""
+            SELECT Resident_ID, Name, Category, Suspended
+            FROM {self.users_table_name}
+            """
+        ]
+        if admin_mode:
+            queries.append("WHERE Category = 'admin'")
+        else:
+            queries.append("WHERE Category != 'admin'")
         if users:
-            query = query + f" LIMIT {users}"
-        self.cursor.execute(query)
+            queries.append(f"LIMIT {users}")
+        self.cursor.execute(" ".join(queries))
         return self.cursor.fetchall()
     
     def add_user(
             self, 
             user_id : str, 
             user_name : str, 
-            user_category : str | int, 
-            contact : int
+            user_category : str | int | Literal["admin"], 
+            contact : int,
+            email : str
             ) -> None:
         query = f"""
-        INSERT INTO {self.users_table_name} (Resident_ID, Name, Category, Points_Balance, Contact, Suspended)
-        VALUES (?, ?, ?, 0, ?, FALSE)
+        INSERT INTO {self.users_table_name} (Resident_ID, Name, Category, Points_Balance, Contact, Suspended, Email)
+        VALUES (?, ?, ?, 0, ?, FALSE, ?, ?)
         """
-        self.cursor.execute(query, (user_id, user_name, user_category, contact))
+        self.cursor.execute(query, (user_id, user_name, user_category, contact, email))
         self.connection.commit()
 
     def suspend_user(self, resident_id : str) -> None:
@@ -315,11 +321,13 @@ class DatabaseInterface:
         f"""
         SELECT DISTINCT Category
         FROM {self.users_table_name}
+        WHERE Category != 'admin'
         """
         self.cursor.execute(query)
         return self.cursor.fetchall()
     
     def set_user_group(self, resident_id : str, group : str) -> None:
+        assert group != 'admin'
         query = \
         f"""
         UPDATE {self.users_table_name}
@@ -330,6 +338,7 @@ class DatabaseInterface:
         self.connection.commit()
 
     def rename_group(self, old_group : str, new_group : str) -> None:
+        assert old_group != 'admin' or new_group != 'admin'
         query = \
         f"""
         UPDATE {self.users_table_name}
