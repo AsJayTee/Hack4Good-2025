@@ -532,13 +532,8 @@ if __name__ == '__main__':
     from dotenv import load_dotenv
     load_dotenv()
     di = DatabaseInterface()
-<<<<<<< Updated upstream
-    print(di.get_number_of_pages())
-    print("---------------------")
-=======
     print(di.get_products(1))
     """print("---------------------")
->>>>>>> Stashed changes
     print(di.get_products(1))
     print("---------------------")
     di.rename_group(1, 'A')
@@ -555,10 +550,6 @@ if __name__ == '__main__':
     print(di.get_received_coupons('C'))
     print(di.get_received_coupons('C'))
     print(di.get_received_coupons('C'))
-<<<<<<< Updated upstream
-    print(di.get_received_coupons('B'))
-=======
     print(di.get_received_coupons('B'))
     di.add_inventory_stock(50, 3)"""
     print(di.get_low_stock_products())
->>>>>>> Stashed changes
