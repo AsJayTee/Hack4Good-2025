@@ -30,7 +30,7 @@ function LoginPage() {
       const userRole = 'user'; // Hardcoding the user role
 
       if (userRole === 'admin') {
-        navigate('/admin'); // Redirect to Admin page
+        navigate('/admin'); // Redirect to Admin page /**TO CHANGE TO MAIN PAGE OF ADMIN */
       } else if (userRole === 'user') {
         navigate('/Shop'); // Redirect to Shop page
       } else {

@@ -49,11 +49,16 @@ class DatabaseInterface:
         self.cursor.execute(query)
         return self.cursor.fetchall()
 
+    def get_all_products(self) -> list[tuple[str, int]]:
+        query = f"SELECT * FROM {self.inventory_table_name}"
+        self.cursor.execute(query)
+        return self.cursor.fetchall()
+
     def get_products_by_category(self, category: str) -> list[tuple]:
         query = f"SELECT * FROM {self.inventory_table_name} WHERE Product_Category = ?;"
         self.cursor.execute(query, (category,))
         return self.cursor.fetchall()
-#test
+
     def get_products(
             self, 
             page : int, 
@@ -260,29 +265,48 @@ class DatabaseInterface:
         self.cursor.execute(query, (resident_id,))
         return self.cursor.fetchone()
     
-    def get_list_of_users(self, users : int = None):
+    def get_user_role(self, resident_id : str) -> Literal["admin", "user"]:
         query = \
         f"""
-        SELECT Resident_ID, Name, Category, Suspended
+        SELECT Category 
         FROM {self.users_table_name}
+        WHERE Resident_ID = ?
         """
+        self.cursor.execute(query, (resident_id,))
+        if self.cursor.fetchone()[0] == "admin":
+            return "admin"
+        else:
+            return "user"
+    
+    def get_list_of_users(self, users : int = None, admin_mode : bool = False):
+        queries = [
+            f"""
+            SELECT Resident_ID, Name, Category, Suspended
+            FROM {self.users_table_name}
+            """
+        ]
+        if admin_mode:
+            queries.append("WHERE Category = 'admin'")
+        else:
+            queries.append("WHERE Category != 'admin'")
         if users:
-            query = query + f" LIMIT {users}"
-        self.cursor.execute(query)
+            queries.append(f"LIMIT {users}")
+        self.cursor.execute(" ".join(queries))
         return self.cursor.fetchall()
     
     def add_user(
             self, 
             user_id : str, 
             user_name : str, 
-            user_category : str | int, 
-            contact : int
+            user_category : str | int | Literal["admin"], 
+            contact : int,
+            email : str
             ) -> None:
         query = f"""
-        INSERT INTO {self.users_table_name} (Resident_ID, Name, Category, Points_Balance, Contact, Suspended)
-        VALUES (?, ?, ?, 0, ?, FALSE)
+        INSERT INTO {self.users_table_name} (Resident_ID, Name, Category, Points_Balance, Contact, Suspended, Email)
+        VALUES (?, ?, ?, 0, ?, FALSE, ?, ?)
         """
-        self.cursor.execute(query, (user_id, user_name, user_category, contact))
+        self.cursor.execute(query, (user_id, user_name, user_category, contact, email))
         self.connection.commit()
 
     def suspend_user(self, resident_id : str) -> None:
@@ -310,11 +334,13 @@ class DatabaseInterface:
         f"""
         SELECT DISTINCT Category
         FROM {self.users_table_name}
+        WHERE Category != 'admin'
         """
         self.cursor.execute(query)
         return self.cursor.fetchall()
     
     def set_user_group(self, resident_id : str, group : str) -> None:
+        assert group != 'admin'
         query = \
         f"""
         UPDATE {self.users_table_name}
@@ -325,6 +351,7 @@ class DatabaseInterface:
         self.connection.commit()
 
     def rename_group(self, old_group : str, new_group : str) -> None:
+        assert old_group != 'admin' or new_group != 'admin'
         query = \
         f"""
         UPDATE {self.users_table_name}
@@ -518,7 +545,7 @@ if __name__ == '__main__':
     from dotenv import load_dotenv
     load_dotenv()
     di = DatabaseInterface()
-    print(di.get_products_by_category('Food'))
+    print(di.get_products(1))
     """print("---------------------")
     print(di.get_products(1))
     print("---------------------")
@@ -537,5 +564,5 @@ if __name__ == '__main__':
     print(di.get_received_coupons('C'))
     print(di.get_received_coupons('C'))
     print(di.get_received_coupons('B'))
-    di.add_inventory_stock(50, 3)
-    print(di.get_inventory_items())"""
+    di.add_inventory_stock(50, 3)"""
+    print(di.get_low_stock_products())

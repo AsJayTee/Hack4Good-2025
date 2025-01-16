@@ -74,7 +74,8 @@ const CartPage = ({ setCartCount }) => {
               <p>Category: {item.category}</p>
               <p>Unit Cost: {item.price} points</p>
               <p>Total Cost: {item.price * item.quantity} points</p>
-              <p>Quantity: 
+              <p className="quantity-control">
+                Quantity: 
                 <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1}>-</button>
                 {item.quantity}
                 <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
