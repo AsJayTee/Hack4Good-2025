@@ -19,6 +19,7 @@ function App() {
         <Route path='/inventory' element={<Inventory/>} />
         <Route path='/sales-request' element={<SalesRequest/>} />
         <Route path='/' element={<Analytics/>}/>
+        <Route path='/analytics' element={<Analytics/>}/>
         <Route path='/inventory-history' element={<InventoryHis/>} />
         <Route path='/user-management' element={<UserManage />} />
         
