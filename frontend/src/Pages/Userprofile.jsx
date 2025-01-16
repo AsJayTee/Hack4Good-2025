@@ -37,7 +37,6 @@ const Userprofile = () => {
                     <p className='profile-points'>Points: {user.points}</p>
                 </div>
                 <div className="profile-options">
-                    <button className="option-button">Change Password</button>
                     <button className="option-button">Log Out</button>
                 </div>
             </div>
