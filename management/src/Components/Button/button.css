@@ -1,0 +1,82 @@
+  /* Button styles */
+  button {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    margin: 5px;
+    border-radius: 12px;
+    font-family:'Roboto',sans-serif;
+  }
+  
+  .primary-button {
+    background-color: #5280e3;
+    color: white;
+  }
+  
+  .primary-button:hover {
+    background-color: #051d67;
+  }
+  
+  .increment-button{
+    background-color: #efba51;
+    color: white;
+  }
+
+  .increment-button:hover {
+    background-color: #ca7f06;
+  }
+
+  .decrement-button{
+    background-color: #5b52e3;
+    color: white;
+  }
+
+  .decrement-button:hover{
+    background-color:#3114c1
+  }
+  
+  .danger-button {
+    background-color: #c75661;
+    color: white;
+  }
+  
+  .danger-button:hover {
+    background-color: #c82333;
+  }
+  
+  .warning-button {
+    background-color: #dcbe64;
+    color: black;
+  }
+  
+  .warning-button:hover {
+    background-color: #e0a800;
+  }
+
+  .suspend-button{
+    background-color: #ec6060;
+    color: white;
+  }
+
+  .suspend-button:hover{
+    background-color: #520630;
+  }
+  .unsuspend-button{
+    background-color: #eb59d5;
+    color: white;
+  }
+
+  .unsuspend-button:hover{
+    background-color: #7a1077;
+  }
+  
+  .secondary-button {
+    background-color: #7d6c7c;
+    color: white;
+  }
+  
+  .secondary-button:hover {
+    background-color: #5a6268;
+  }
+  

@@ -22,48 +22,9 @@
     text-align: center;
   }
   
+  
   /* Buttons styling */
-  .quantity-button {
-    padding: 5px 10px;
-    margin: 0 5px;
-    cursor: pointer;
-    background-color: #000000;
-    color: white;
-    border: none;
-    border-radius: 4px;
-  }
-  
-  .quantity-button:hover {
-    background-color: #ab1d34;
-  }
 
-  /* Add Item Button */
-.add-button {
-    padding: 10px 20px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .add-button:hover {
-    background-color: #0056b3;
-  }
-  
-  /* Delete Button */
-  .delete-button {
-    padding: 5px 10px;
-    background-color: #DC3545;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .delete-button:hover {
-    background-color: #a71d2a;
-  }
   
   /* Modal Styles */
   .modal {

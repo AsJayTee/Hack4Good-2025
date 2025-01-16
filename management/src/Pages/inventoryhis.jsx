@@ -2,11 +2,11 @@ import React from "react";
 import "./CSS/inventoryhis.css"
 // Sample data for admin updates to the inventory
 const inventoryUpdates = [
-  { adminId: 1, adminName: "Admin1", itemName: "Apple", quantity: 10, action: "added" },
-  { adminId: 2, adminName: "Admin2", itemName: "Banana", quantity: 5, action: "added" },
-  { adminId: 1, adminName: "Admin1", itemName: "Cheese", quantity: 0, action: "removed" },
-  { adminId: 3, adminName: "Admin3", itemName: "Soap", quantity: 20, action: "added" },
-  { adminId: 2, adminName: "Admin2", itemName: "Milk", quantity: 0, action: "removed" },
+  { adminId: 1,  itemName: "Apple", quantity: 10, action: "Added" },
+  { adminId: 2,  itemName: "Banana", quantity: 5, action: "Added" },
+  { adminId: 4,  itemName: "Cheese", quantity: 0, action: "Approved" },
+  { adminId: 3, itemName: "Soap", quantity: 20, action: "Denied" },
+  { adminId: 5, itemName: "Milk", quantity: 0, action: "Removed" },
 ];
 
 const InventoryHistory = () => {
@@ -17,7 +17,6 @@ const InventoryHistory = () => {
         <thead>
           <tr>
             <th>Admin ID</th>
-            <th>Admin Name</th>
             <th>Item Name</th>
             <th>Quantity Changed</th>
             <th>Action</th>
@@ -27,13 +26,17 @@ const InventoryHistory = () => {
           {inventoryUpdates.map((update, index) => (
             <tr key={index}>
               <td>{update.adminId}</td>
-              <td>{update.adminName}</td>
               <td>{update.itemName}</td>
-              <td>{update.action === "removed" ? "-" : update.quantity}</td>
+              <td>{update.action === "Removed" ? "-" : update.quantity}</td>
               <td>
-                {update.action === "added"
-                  ? `${update.adminName} added ${(update.itemName)} to the inventory.`
-                  : `${update.adminName} removed ${(update.itemName)} from the inventory.`}
+              {update.action === "Added"
+                ? `Admin ${update.adminId} added ${update.itemName} to the inventory.`
+                : update.action === "Accepted"
+                ? `Admin ${update.adminId} accepted request from resident.`
+                : update.action === "Declined"
+                ? `Admin ${update.adminId} declined request from resident.`
+                : `Admin ${update.adminId} removed ${update.itemName} from the inventory.`}
+
               </td>
             </tr>
           ))}
