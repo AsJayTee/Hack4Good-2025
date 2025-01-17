@@ -11,6 +11,8 @@
   /* Table styling */
   table {
     width: 60%;
+  
+    table-layout: fixed;
     margin: 0 auto;
     border-collapse: collapse;
   }

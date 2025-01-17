@@ -3,7 +3,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import "./CSS/Analytics.css";
 import logo from '../Components/Assets/logo.png';
-//try
+
 
 const Analytics = () => {
   const pdfRef = useRef(); // Reference to the content for PDF export
@@ -13,7 +13,7 @@ const Analytics = () => {
 
   // Fetch data from backend
   useEffect(() => {
-    // Fetch out-of-stock items
+    // Fetch low stock items
     fetch('http://127.0.0.1:5000/get_low_stock_products')
       .then(response => {
         if (!response.ok) {
@@ -66,8 +66,10 @@ const Analytics = () => {
 
   return (
     <div className="analytics-container">
+      <div className="welcome-admin">
+        <h2>Welcome Admin!</h2>
+      </div>
       <h1>Analytics</h1>
-
       {/* Display errors if any */}
       {error && <p className="error">{error}</p>}
 

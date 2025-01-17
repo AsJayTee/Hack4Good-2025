@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import "./CSS/UserManage.css"; // Importing the CSS file
 import "../Components/Button/button.css"
-import AddUserPage from "./AddUser.jsx"
 
 const UserManagementPage = () => {
   const initialUsers = [
@@ -24,7 +23,7 @@ const UserManagementPage = () => {
   const [userToResetPassword, setUserToResetPassword] = useState(null);
   const [showDeleteGroupModal, setShowDeleteGroupModal] = useState(false);
   const [groupToDelete, setGroupToDelete] = useState(null);
-  const [globalPoints, setGlobalPoints] = useState(0);
+  const [globalPoints, setGlobalPoints] = useState("");
   const [selectedGroups, setSelectedGroups] = useState({});
   const [selectAll, setSelectAll] = useState(false);
 
@@ -124,11 +123,7 @@ const UserManagementPage = () => {
   };
 
   
-  const handleAddUser = (newUser) => {
-    setUsers([...users, newUser]);
-    setShowCreateUserModal(false);  // Close the modal after adding the user
-  };
-  
+
 
    
   // Grouping users by their group number
@@ -141,8 +136,12 @@ const UserManagementPage = () => {
   }, {});
 
   const handleGlobalPointsChange = (e) => {
-    setGlobalPoints(Number(e.target.value));
+    const value = e.target.value;
+    if (value === "" || !isNaN(value)) {
+      setGlobalPoints(value);
+    }
   };
+  
 
   const handleSelectAll = () => {
     const newSelectAll = !selectAll;
@@ -165,13 +164,17 @@ const UserManagementPage = () => {
   };
 
   const applyPointsToGroups = (adjustment, group) => {
-    
+    const pointsToAdjust = parseInt(globalPoints, 10);
+      if (pointsToAdjust === 0 || isNaN(pointsToAdjust)) {
+        alert("Please enter a valid number to adjust points.");
+        return;
+      }
 
     const updatedUsers = users.map((user) => {
       if (selectedGroups[user.group] || user.group === group) {
         return {
           ...user,
-          points: adjustment === "add" ? user.points + globalPoints : user.points - globalPoints,
+          points: adjustment === "add" ? user.points + pointsToAdjust : user.points - pointsToAdjust,
         };
       }
       return user;
@@ -179,16 +182,13 @@ const UserManagementPage = () => {
 
     setUsers(updatedUsers);
     alert(
-      `${globalPoints} points ${adjustment === "add" ? "added to" : "subtracted from"} ${
+      `${pointsToAdjust} points ${adjustment === "add" ? "added to" : "subtracted from"} ${
         group ? `Group ${group}` : "selected groups"
       }.`
     );
-    setGlobalPoints(0); // Reset the input field
+    setGlobalPoints(""); // Reset the input field
   };
 
-  const handleCreateUserClick = () => {
-    setShowCreateUserModal(true);
-  };
 
   return (
     <div className = "user-management-container">
@@ -203,7 +203,7 @@ const UserManagementPage = () => {
         <div className="global-points">
           <input
             type="number"
-            placeholder="Points to Adjust"
+            placeholder="Points"
             style={{ width: "60px" }}
             value={globalPoints}
             onChange={handleGlobalPointsChange}
@@ -309,7 +309,91 @@ const UserManagementPage = () => {
     <div className="modal-content">
       <span className="close" onClick={() => setShowCreateUserModal(false)}>&times;</span>
       <h2>Create New User</h2>
-      <AddUserPage/>
+      <form>
+        {/* Group Number Row */}
+        <div className="form-row">
+          <label>Group Number: </label>
+          <input
+            type="text"
+            name="group"
+            value={newUser.group}
+            onChange={handleCreateUserChange}
+          />
+        </div>
+
+
+        {/* Blank Row */}
+        <div className="form-row"></div>
+
+
+        {/* Name Row */}
+        <div className="form-row">
+          <label>Name:</label>
+          <input
+            type="text"
+            name="name"
+            value={newUser.name}
+            onChange={handleCreateUserChange}
+          />
+        </div>
+
+
+        {/* Blank Row */}
+        <div className="form-row"></div>
+
+
+        {/* ID Row */}
+        <div className="form-row">
+          <label>ID:  </label>
+          <input
+            type="text"
+            name="id"
+            value={newUser.id}
+            onChange={handleCreateUserChange}
+          />
+        </div>
+
+
+        {/* Blank Row */}
+        <div className="form-row"></div>
+        
+        {/* Points Row */}
+        <div className="form-row">
+          <label>Points: </label>
+          <input
+            type="text"
+            name="points"
+            value={newUser.points}
+            onChange={handleCreateUserChange}
+          />
+        </div>
+
+
+        {/* Blank Row */}
+        <div className="form-row"></div>
+
+
+        {/* Contact Row */}
+        <div className="form-row">
+          <label>Contact Number: </label>
+          <input
+            type="text"
+            name="contact"
+            value={newUser.contact}
+            onChange={handleCreateUserChange}
+          />
+        </div>
+
+
+        <div className="modal-footer">
+          <button type="button" className="secondary-button" onClick={() => setShowCreateUserModal(false)}>
+            Close
+          </button>
+          <button type="button" className="primary-button" onClick={handleCreateUserSubmit}>
+            Create User
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 )}
@@ -359,6 +443,4 @@ const UserManagementPage = () => {
     </div>
   );
 };
-
-
 export default UserManagementPage;

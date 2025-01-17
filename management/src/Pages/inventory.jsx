@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import "./CSS/inventory.css";
 import "../Components/Button/button.css"
-
+//inventory
 
 const Inventory = () => {
   // Initial state for food items
   const [inventory, setInventory] = useState([
-    { id: 1, name: "Apples",point: 3 ,quantity: 10 },
-    { id: 2, name: "Bananas",point: 4, quantity: 20 },
-    { id: 3, name: "Carrots",point: 5, quantity: 15 },
-    { id: 4, name: "Carrotss",point:6, quantity: 16 },
+    { id: 1, name: "Apple",category: "Fruit" ,quantity: 10 },
+    { id: 2, name: "Banana",category: "Fruit", quantity: 20 },
+    { id: 3, name: "Carrot",category: "Vegetable", quantity: 15 },
+    { id: 4, name: "Tomato",category:"Vegetable", quantity: 16 },
   ]);
   const [showModal, setShowModal] = useState(false);
   const [newItem, setNewItem] = useState({ name: "", quantity: "" });
@@ -70,13 +70,16 @@ const Inventory = () => {
       return;
     }
     const newItemData = {
+      adminId: parseInt(newItem.adminId, 10),
       id: inventory.length + 1,
       name: newItem.name,
+      category: newItem.category,
       point:  parseInt(newItem.point, 10),
       quantity: parseInt(newItem.quantity, 10),
+      image: newItem.image
     };
     setInventory((prevInventory) => [...prevInventory, newItemData]);
-    setNewItem({ name: "", quantity: "", point: "" });
+    setNewItem({ adminId: "", id:"", name: "", category:"", quantity: "", point: "", image: null});
     setShowModal(false);
   };
 
@@ -92,7 +95,7 @@ const Inventory = () => {
         <thead>
           <tr>
             <th>Item</th>
-            <th>Points required/ Item</th>
+            <th>Category</th>
             <th>Quantity</th>
             <th>Actions</th>
           </tr>
@@ -101,7 +104,7 @@ const Inventory = () => {
           {inventory.map((item) => (
             <tr key={item.id}>
               <td>{item.name}</td>
-              <td>{item.point}</td>
+              <td>{item.category}</td>
               <td>{item.quantity}</td>
               <td>
                 <button
@@ -146,10 +149,28 @@ const Inventory = () => {
             <h2>Add New Item</h2>
             <div className="form-row">
               <label>
+                Admin ID: <input
+                  type="number"
+                  value={newItem.adminId}
+                  onChange={(e) => setNewItem({ ...newItem, adminId: e.target.value })}
+                />
+              </label>
+            </div>
+            <div className="form-row">
+              <label>
                 Item name: <input
                   type="text"
                   value={newItem.name}
                   onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                />
+              </label>
+            </div>
+            <div className="form-row">
+              <label>
+                Category:  <input
+                  type="text"
+                  value={newItem.category}
+                  onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
                 />
               </label>
             </div>
@@ -176,6 +197,15 @@ const Inventory = () => {
                     setNewItem({ ...newItem, quantity: e.target.value })
               
                   }
+                />
+              </label>
+            </div>
+            <div className="form-row">
+              <label>
+                Upload Image: <input
+                  type="file"
+                  accept = "image/*"
+                  onChange={(e) => setNewItem({ ...newItem, image: e.target.files[0] })}
                 />
               </label>
             </div>

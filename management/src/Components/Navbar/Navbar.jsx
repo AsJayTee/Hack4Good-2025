@@ -18,7 +18,7 @@ const Navbar = () => {
                 <li onClick={()=>{setMenu("Sales Request")}}><Link style={{textDecoration:'none'}} to="/sales-request">Sales Request</Link>{menu==="Sales Request"?<hr/>:<></>}</li>
             </ul>
             <div className='nav-login-cart'>
-                <Link to="/login"><button> Admin Login</button></Link>
+                <Link to="/login"><button>Login</button></Link>
             </div>
 
 

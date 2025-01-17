@@ -2,9 +2,11 @@
     padding: 20px;
   }
   
-  h1, h2, h3 {
+  h1,h2 h3 {
     text-align: center;
   }
+
+  
   
   .image-container {
     display: flex;
@@ -25,6 +27,7 @@
     border-radius: 8px;
   }
   
+
   table {
     width: 90%;
     border-collapse: collapse;
