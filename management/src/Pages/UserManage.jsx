@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./CSS/UserManage.css"; // Importing the CSS file
 import "../Components/Button/button.css"
-
+import AddUserPage from "./AddUser.jsx"
 
 const UserManagementPage = () => {
   const initialUsers = [
@@ -185,6 +185,9 @@ const UserManagementPage = () => {
     setGlobalPoints(0); // Reset the input field
   };
 
+  const handleCreateUserClick = () => {
+    setShowCreateUserModal(true);
+  };
 
   return (
     <div className = "user-management-container">
@@ -305,91 +308,7 @@ const UserManagementPage = () => {
     <div className="modal-content">
       <span className="close" onClick={() => setShowCreateUserModal(false)}>&times;</span>
       <h2>Create New User</h2>
-      <form>
-        {/* Group Number Row */}
-        <div className="form-row">
-          <label>Group Number: </label>
-          <input
-            type="text"
-            name="group"
-            value={newUser.group}
-            onChange={handleCreateUserChange}
-          />
-        </div>
-
-
-        {/* Blank Row */}
-        <div className="form-row"></div>
-
-
-        {/* Name Row */}
-        <div className="form-row">
-          <label>Name:</label>
-          <input
-            type="text"
-            name="name"
-            value={newUser.name}
-            onChange={handleCreateUserChange}
-          />
-        </div>
-
-
-        {/* Blank Row */}
-        <div className="form-row"></div>
-
-
-        {/* ID Row */}
-        <div className="form-row">
-          <label>ID:  </label>
-          <input
-            type="text"
-            name="id"
-            value={newUser.id}
-            onChange={handleCreateUserChange}
-          />
-        </div>
-
-
-        {/* Blank Row */}
-        <div className="form-row"></div>
-        
-        {/* Points Row */}
-        <div className="form-row">
-          <label>Points: </label>
-          <input
-            type="text"
-            name="points"
-            value={newUser.points}
-            onChange={handleCreateUserChange}
-          />
-        </div>
-
-
-        {/* Blank Row */}
-        <div className="form-row"></div>
-
-
-        {/* Contact Row */}
-        <div className="form-row">
-          <label>Contact Number: </label>
-          <input
-            type="text"
-            name="contact"
-            value={newUser.contact}
-            onChange={handleCreateUserChange}
-          />
-        </div>
-
-
-        <div className="modal-footer">
-          <button type="button" className="secondary-button" onClick={() => setShowCreateUserModal(false)}>
-            Close
-          </button>
-          <button type="button" className="primary-button" onClick={handleCreateUserSubmit}>
-            Create User
-          </button>
-        </div>
-      </form>
+      <AddUserPage/>
     </div>
   </div>
 )}
