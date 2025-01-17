@@ -26,7 +26,7 @@ function App() {
         <Navbar cartCount={cartCount} /> {/* Pass cartCount to Navbar */}
         <Routes>
           {/* Define Routes */}
-          <Route path='/' element={<Shop />} />
+          <Route path='/' element={<Login />} />
           <Route path='/Shop' element={<Shop />} />
           <Route path='/Food' element={<ShopCategory category="Food" />} />
           <Route path='/Fruit' element={<ShopCategory category="Fruit" />} />
