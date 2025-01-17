@@ -165,10 +165,7 @@ const UserManagementPage = () => {
   };
 
   const applyPointsToGroups = (adjustment, group) => {
-    if (globalPoints <= 0) {
-      alert("Please enter a valid number of points.");
-      return;
-    }
+    
 
     const updatedUsers = users.map((user) => {
       if (selectedGroups[user.group] || user.group === group) {
