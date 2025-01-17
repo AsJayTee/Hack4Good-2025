@@ -578,3 +578,5 @@ if __name__ == '__main__':
     import base64
     base64_image = base64.b64encode(blob_image).decode('utf-8')
     print(base64_image)
+    from PIL import Image
+    Image.open(io.BytesIO(blob_image)).show()
