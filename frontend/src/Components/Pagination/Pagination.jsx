@@ -4,7 +4,6 @@ import Search from '../Search/Search'; // Import your Search component
 
 const ProductsPage = ({ selectedCategory }) => {
   const [products, setProducts] = useState([]);
-  const [pageNum, setPageNum] = useState(1);
   const [cart, setCart] = useState([]);
   const [searchQuery, setSearchQuery] = useState(''); // Store search query
 
@@ -36,9 +35,9 @@ const ProductsPage = ({ selectedCategory }) => {
     }
   };
 
-  const fetchProducts = async (page, query, category) => {
+  const fetchProducts = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/getProducts?pageNum=${page}&searchQuery=${query}&category=${category}`);
+      const response = await fetch(`http://localhost:5000/getAllProducts`);
       const data = await response.json();
       setProducts(data);
     } catch (error) {
@@ -47,15 +46,8 @@ const ProductsPage = ({ selectedCategory }) => {
   };
 
   useEffect(() => {
-    if (selectedCategory === "shop" || !selectedCategory) {
-      fetchProducts(pageNum, searchQuery, ""); // Empty string for 'shop' or no category
-    } else {
-      fetchProducts(pageNum, searchQuery, selectedCategory);
-    }
-  }, [pageNum, searchQuery, selectedCategory]);
-
-  const handleNextPage = () => setPageNum((prevPage) => prevPage + 1);
-  const handlePrevPage = () => setPageNum((prevPage) => Math.max(prevPage - 1, 1));
+    fetchProducts();
+  }, []);
 
   const convertToBase64 = (imageBlob) => {
     return `data:image/png;base64,${imageBlob}`;
@@ -64,7 +56,6 @@ const ProductsPage = ({ selectedCategory }) => {
   // Function to update the search query
   const handleSearch = (query) => {
     setSearchQuery(query);
-    setPageNum(1); // Reset to first page on new search
   };
 
   // Filter products based on search query
@@ -75,14 +66,7 @@ const ProductsPage = ({ selectedCategory }) => {
 
   return (
     <div>
-      {/* Add Search Component */}
       <Search onSearch={handleSearch} />
-
-      <div className="pagination-controls">
-        <button onClick={handlePrevPage} disabled={pageNum === 1}>Previous</button>
-        <span>Page {pageNum}</span>
-        <button onClick={handleNextPage}>Next</button>
-      </div>
 
       <div className="product-list">
         {filteredProducts.map((product) => (
