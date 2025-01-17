@@ -11,6 +11,7 @@ This project was inspired by the growing need for efficient e-commerce solutions
 
 Hack4Good - 2025 Muhammadiyah Welfare Home's E-Commerce Webpage
 Team: Hack4Cause
+Pitch deck: "https://docs.google.com/presentation/d/1eydGtvnKdGwdxqEc2rukFkKDWr5ihyGWYeNnwIlHWvY/edit?usp=sharing"
 
 This is an E-commerce platform for residents to shop for food and necessities using a point-based system.
 
