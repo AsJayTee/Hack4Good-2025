@@ -86,38 +86,50 @@ function LoginPage() {
   async function handleLogin(event) {
     event.preventDefault();
     setLoading(true);
-  
+
+    // Log in the user using email and password
     const { user, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-  
+
     setLoading(false);
-  
+
     if (error) {
       console.error('Error logging in:', error.message);
       alert(`Login failed: ${error.message}`);
     } else {
       console.log('Logged in successfully:', user);
-      console.log("User object:", user);  // Log the user object to see if resident_id is present
-  
-      const resident_id = user?.user_metadata?.resident_id;
-      if (!resident_id) {
-        console.error("Resident ID is missing from user metadata.");
-        alert('Resident ID not found. Please try again.');
-        return;
-      }
-  
-      console.log("Resident ID:", resident_id);  // Log the resident ID
-  
+
       try {
-        const response = await fetch(`http://localhost:5000/get_user_role?resident_id=${resident_id}`);
-        const data = await response.json();
-        console.log('Role data:', data);  // Log the response from the backend
-  
+        // Query the database to find the UID (resident ID) using the email address
+        const { data, error } = await supabase
+          .from('"Users"') // Replace "Users" with the exact table name; wrap in double quotes for case-sensitive names
+          .select('"UID"') // Replace "UID" with the exact column name
+          .eq('"Email"', email); // Replace "Email" with the exact column name
+
+        if (error) {
+          console.error('Error retrieving UID:', error.message);
+          alert(`Failed to retrieve UID from database. Error: ${error.message}`);
+          return;
+        }
+
+        const residentId = data[0]?.UID; // Extract the UID value
+        if (!residentId) {
+          console.error('Resident ID not found in the database for the provided email.');
+          alert('Resident ID not found. Please check your credentials and try again.');
+          return;
+        }
+        console.log('Resident ID (UID):', residentId);
+
+        // Call your backend to fetch user role using the residentId
+        const response = await fetch(`http://localhost:5000/get_user_role?resident_id=${residentId}`);
+        const roleData = await response.json();
+        console.log('Role data:', roleData);
+
         if (response.ok) {
-          const userRole = data.role;
-  
+          const userRole = roleData.role;
+
           if (userRole === 'admin') {
             window.location.href = 'http://localhost:3001/analytics'; // Redirect to Admin server
           } else if (userRole === 'user') {
@@ -126,16 +138,15 @@ function LoginPage() {
             alert(`Unknown role: ${userRole}, please contact support.`);
           }
         } else {
-          throw new Error(data.error || 'Failed to fetch user role');
+          throw new Error(roleData.error || 'Failed to fetch user role');
         }
-      } catch (error) {
-        console.error('Error fetching user role:', error);
-        alert('Failed to fetch user role. Please try again.');
+      } catch (err) {
+        console.error('Error fetching Resident ID or role:', err.message);
+        alert(`Error fetching Resident ID or role: ${err.message}. Please try again.`);
       }
     }
   }
-  
-  
+
   return (
     <div className="loginsignup">
       <div className="loginsignup-container">
