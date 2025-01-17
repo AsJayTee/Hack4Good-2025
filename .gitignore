@@ -1,5 +1,5 @@
 frontend\node_modules
 management\node_modules
 node_modules
-**/__pycache__/
-**/.DS_Store
+backend/app/__pycache__/
+backend/__pycache__/
