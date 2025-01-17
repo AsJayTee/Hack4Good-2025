@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS
 import io
 import database #imports the database.py file
 import base64
 app = Flask(__name__)
+CORS(app)
 #db_interface = database.DatabaseInterface() #doesnt work
 def convert_blob_to_base64(product_list):
     converted_products = []
