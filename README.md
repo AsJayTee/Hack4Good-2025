@@ -1,12 +1,65 @@
-# Getting Started with Create React App
+## Hack4Good-2025
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### Muhammadiyah Welfare Home (MWH) System 
+![MWH logo](https://mwh.muhammadiyah.org.sg/wp-content/uploads/2021/06/MWHLOGO-2021-01.png)
 
-## Available Scripts
+#### Inspiration 
+This project was inspired by the growing need for efficient e-commerce solutions that cater to both customers and administrators. By focusing on a community-based system, we aimed to create a platform that ensures equitable access to resources while providing administrators with comprehensive tools to manage inventory and sales effectively.
 
-In the project directory, you can run:
+## Table of Contents
 
-### `npm start`
+1. [Overview](#overview)
+2. [Features](#features)
+3. [Getting started](#getting-started)
+4. [Next steps](#next-steps)
+
+## Overview
+This project is designed to empower the residents of Muhammadiyah Welfare Home and streamline its operations. It consists of two main components: a Backend for managing data and a Frontend for user interaction.
+
+
+## Features
+
+- **Frontend Development:** Created with HTML, CSS, JavaScript and React, ensuring a responsive and intuitive design. Bootstrap was used to streamline styling and ensure consistency.
+- **Backend Development:**  Python Flask acted as the backbone, pulling and pushing data between the user interfaces and the SQL database.
+- **Database Management:** The SQL database housed tables for inventory, orders, admin actions, resident accounts, and coupons. Supabase facilitated authentication and synced user data with SQL.
+- **Features Implementation:** Shopping functionality was linked with dynamic cart updates, while admin functionalities included user and inventory management, along with reporting and analytics features.
+
+
+---
+
+## Getting started
+Follow these steps to set up the project on your local machine. 
+
+Clone the Repository
+Start by cloning the repository to your local device:
+
+git clone <repository-url>
+
+Replace with the URL of your Git repository.
+
+
+## Backend
+Run the following command to install all dependencies:
+```bash
+pip install -r requirements.txt
+```
+The backend is built using Flask and requires the following structure:
+```bash
+from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS
+import io
+import base64
+from app import database  # Imports database.py for data management
+
+app = Flask(__name__)
+CORS(app)
+```
+
+
+
+## Frontend 
+
+#### `npm start`
 
 Run cd C:\Hack4Good-2025\frontend to change the file directory to frontend folder.
 Run npm install
@@ -22,6 +75,8 @@ Open [http://localhost:3001](http://localhost:3001) to view it in your browser.
 
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
+
+##### Other information 
 
 ### `npm test`
 
@@ -77,3 +132,13 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+---
+
+## Next steps
+- Mobile App Development: Expanding the platform to include a mobile application for even greater accessibility and convenience.
+- Enhanced Analytics: Implementing AI-driven insights to provide predictive analytics on stock trends and customer purchasing behavior.
+- Gamification Features: Introducing features like reward points or badges for frequent shoppers to increase user engagement.
+- Scalability Improvements: Optimizing the platform to handle a larger volume of users and data as the user base grows.
+- Community Feedback Integration: Actively seeking feedback from users to iterate and improve the platform further.
+- Expanded Features: Adding support for promotions, coupon management, and loyalty programs to provide a more engaging shopping experience.
