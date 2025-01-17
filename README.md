@@ -8,8 +8,17 @@ In the project directory, you can run:
 
 ### `npm start`
 
-Runs the app in the development mode.\
+Run cd C:\Hack4Good-2025\frontend to change the file directory to frontend folder.
+Run npm install
+Run npm start 
+Run y for yes to run in a separate browser if prompted.
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+
+Run cd C:\Hack4Good-2025\management to change the file directory to management folder.
+Run npm install
+Run npm start 
+Run y for yes to run in a separate browser if prompted.
+Open [http://localhost:3001](http://localhost:3001) to view it in your browser.
 
 The page will reload when you make changes.\
 You may also see any lint errors in the console.

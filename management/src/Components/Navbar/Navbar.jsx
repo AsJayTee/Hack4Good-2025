@@ -11,7 +11,7 @@ const Navbar = () => {
                 <img src={logo} alt=""/>
             </div>
             <ul className='nav-menu'>
-                <li onClick={()=>{setMenu("Analytics")}}><Link style={{textDecoration:'none'}} to="/">Analytics</Link>{menu==="Analytics"?<hr/>:<></>}</li>
+                <li onClick={()=>{setMenu("Analytics")}}><Link style={{textDecoration:'none'}} to="/analytics">Analytics</Link>{menu==="Analytics"?<hr/>:<></>}</li>
                 <li onClick={()=>{setMenu("User Management")}}><Link style={{textDecoration:'none'}} to="/user-management">User Management</Link>{menu==="User Management"?<hr/>:<></>}</li>
                 <li onClick={()=>{setMenu("Inventory")}}><Link style={{textDecoration:'none'}} to="/inventory">Inventory</Link>{menu==="Inventory"?<hr/>:<></>}</li>
                 <li onClick={()=>{setMenu("Inventory History")}}><Link style={{textDecoration:'none'}} to="/inventory-history">Inventory History</Link>{menu==="Inventory History"?<hr/>:<></>}</li>

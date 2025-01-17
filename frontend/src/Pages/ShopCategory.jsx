@@ -1,79 +1,99 @@
-import './CSS/Shop.css';
-import Search from '../Components/Search/Search';
-import CatPagination from '../Components/Pagination/CatPagination';
-import { useState } from 'react';
-
-function ShopCategory({ category }) {
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-  };
-
-  return (
-    <div className="shop-container">
-      <Search onSearch={handleSearch} />
-      <h1>Products in {category}</h1>
-      <CatPagination category={category} /> {/* Pass the category to CatPagination */}
-    </div>
-  );
-}
-
-export default ShopCategory;
-
-
-
-
-/*import React, { useContext, useState } from 'react';
-import './CSS/ShopCategory.css';
-import { ShopContext } from '../Context/ShopContext';
-import dropdown_icon from '../Components/Assets/dropdown_icon.png';
+import React, { useState, useEffect } from 'react';
+import './CSS/ShopCategory.css'
 import Item from '../Components/Item/Item';
 import Search from '../Components/Search/Search';
 
-function ShopCategory() {
-    const ShopCategory = (props) => {
-        const { all_product } = useContext(ShopContext);
-        const [sortOrder, setSortOrder] = useState('asc'); // State to manage sort order (ascending or descending)
+const ShopCategory = ({ category }) => {
+    const [products, setProducts] = useState([]); // State to store products fetched from the server
+    const [loading, setLoading] = useState(true); // State to track loading status
+    const [error, setError] = useState(null); // State to store any error
+    const [filteredProducts, setFilteredProducts] = useState([]); // State to store filtered products
+    const [categoryProducts, setCategoryProducts] = useState([]); // State to store category-filtered products
 
-        // Function to handle sorting
-        const handleSort = () => {
-            setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc')); // Toggle the sort order
+    useEffect(() => {
+        // Function to fetch data from the server
+        const fetchProducts = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/getAllProducts');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch products');
+                }
+                const data = await response.json();
+
+                // Transform the data into an array of objects
+                const transformedData = data.map(item => ({
+                    id: item[0],
+                    name: item[1],
+                    category: item[2],
+                    price: item[3],
+                    quantity: item[4],
+                    image: `data:image/png;base64,${item[5]}` // Convert the blob to base64 image
+                }));
+
+                setProducts(transformedData); // Set products to the state
+            } catch (err) {
+                setError(err.message); // Handle error
+            } finally {
+                setLoading(false); // Set loading to false when done
+            }
         };
 
-        // Filter and sort the products for the current category
-        const filteredProducts = all_product.filter(item => item.category === props.category);
-        const sortedProducts = filteredProducts.sort((a, b) => {
-            if (sortOrder === 'asc') {
-                return a.price - b.price; // Ascending order
-            } else {
-                return b.price - a.price; // Descending order
-            }
-        });
+        fetchProducts(); // Fetch products on component mount
+    }, []); // Empty dependency array ensures this effect runs only once
 
-        return (
-            <div className='shop-category'>
-                <Search />
-                <div className='shopcategory-indexSort'>
-                    <p>
-                        <span>Showing 1-8</span> out of 50 products
-                    </p>
-                    <div className='shopcategory-sort' onClick={handleSort}>
-                        Sort by Price {sortOrder === 'asc' ? '🔼' : '🔽'} <img src={dropdown_icon} alt="" />
-                    </div>
-                </div>
-                <div className="shopcategory-products">
-                    {sortedProducts.map((item, i) => (
-                        <Item key={i} id={item.id} name={item.name} image={item.image} price={item.price} />
-                    ))}
-                </div>
-                <div className='shopcategory-loadmore'>
-                    View More
-                </div>
-            </div>
-        );
+    useEffect(() => {
+        // Filter products based on category prop
+        const categoryFiltered = products.filter(item => item.category === category);
+        setCategoryProducts(categoryFiltered);
+        setFilteredProducts(categoryFiltered); // Set filtered products initially
+    }, [products, category]); // Run when products or category changes
+
+    // Handle search functionality
+    const handleSearch = (query) => {
+        if (!query) {
+            setFilteredProducts(categoryProducts); // Reset to all products in the category
+        } else {
+            const filtered = categoryProducts.filter(item =>
+                item.name.toLowerCase().includes(query.toLowerCase()) ||
+                item.category.toLowerCase().includes(query.toLowerCase())
+            );
+            setFilteredProducts(filtered); // Set filtered products
+        }
     };
-}
+
+    // Loading, error, or product display logic
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
+
+    return (
+        <div className='shopcategory'>
+            <h1>All Products in {category}</h1> {/* Dynamically display category */}
+            <Search onSearch={handleSearch} /> {/* Search input for filtering */}
+            <div className='shopcategory-indexSort'>
+                <p>
+                    <span>Showing {filteredProducts.length}</span> products in {category} category
+                </p>
+            </div>
+            <div className='shopcategory-products'>
+                {filteredProducts.map((item, i) => (
+                    <Item key={i} id={item.id} name={item.name} image={item.image} price={item.price} />
+                ))}
+            </div>
+            <div className='shopcategory-loadmore'>
+                {/* Handle "View More" button visibility */}
+                {filteredProducts.length < categoryProducts.length && (
+                    <button onClick={() => { /* Implement load more logic here */ }}>
+                        View More
+                    </button>
+                )}
+            </div>
+        </div>
+    );
+};
 
 export default ShopCategory;
-*/
