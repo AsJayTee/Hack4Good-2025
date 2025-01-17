@@ -44,6 +44,7 @@ Follow these steps to set up the project on your local machine.
 Clone the Repository
 Start by cloning the repository to your local device:
 git clone <repository-url>
+
 Replace with the URL of your Git repository.
 
 
