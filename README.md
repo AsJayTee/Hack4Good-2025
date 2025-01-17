@@ -18,7 +18,6 @@ This is an E-commerce platform for residents to shop for food and necessities us
 
 1. Run flask_server.py
 2. Follow `npm start` details below
->>>>>>> dfae3ce4ef88190000e8b9c1cf2ca233a4030c2e
 
 1. [Overview](#overview)
 2. [Features](#features)
