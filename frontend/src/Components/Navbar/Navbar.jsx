@@ -13,7 +13,7 @@ const Navbar = ({ cartCount }) => {
         <img src={logo} alt="" />
       </div>
       <ul className="nav-menu">
-            <li onClick={() => { setMenu("Shop") }}><Link style={{ textDecoration: 'none' }} to="/">Shop</Link>{menu === "Shop" ? <hr /> : <></>}</li>
+            <li onClick={() => { setMenu("Shop") }}><Link style={{ textDecoration: 'none' }} to="/Shop">Shop</Link>{menu === "Shop" ? <hr /> : <></>}</li>
             <li onClick={() => { setMenu("Food") }}><Link style={{ textDecoration: 'none' }} to="/Food">Food</Link>{menu === "Food" ? <hr /> : <></>}</li>
             <li onClick={() => { setMenu("Fruit") }}><Link style={{ textDecoration: 'none' }} to="/Fruit">Fruit</Link>{menu === "Fruit" ? <hr /> : <></>}</li>
             <li onClick={() => { setMenu("Snacks") }}><Link style={{ textDecoration: 'none' }} to="/Snacks">Snacks</Link>{menu === "Snacks" ? <hr /> : <></>}</li>

@@ -3,6 +3,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import "./CSS/Analytics.css";
 import logo from '../Components/Assets/logo.png';
+//try
 
 const Analytics = () => {
   const pdfRef = useRef(); // Reference to the content for PDF export
@@ -29,11 +30,16 @@ const Analytics = () => {
         if (!response.ok) {
           throw new Error('Failed to fetch in-demand products chart.');
         }
-        return response.blob();
+        return response.json();
       })
-      .then(blob => {
-        const url = URL.createObjectURL(blob);
-        setPieChartUrl(url);
+      .then(data => {
+        if (data.image) {
+          // Construct a Base64 image URL
+          const url = `data:image/png;base64,${data.image}`;
+          setPieChartUrl(url); // Set the URL in state
+        } else {
+          throw new Error('No image data found.');
+        }
       })
       .catch(err => setError(err.message));
   }, []);
@@ -74,17 +80,16 @@ const Analytics = () => {
             {pieChartUrl ? (
               <img src={pieChartUrl} alt="In-Demand Products Chart" />
             ) : (
-              <p>Loading pie chart...</p>
+              <p>Image cannot be loaded</p>
             )}
           </div>
         </div>
 
         {/* Table for out-of-stock items */}
-        <h2>Most In-Demand Items (Out of Stock)</h2>
+        <h2>Low stock products</h2>
         <table>
           <thead>
             <tr>
-              <th>ID</th>
               <th>Item</th>
               <th>Category</th>
               <th>Quantity</th>
@@ -94,7 +99,6 @@ const Analytics = () => {
             {outOfStockItems.length > 0 ? (
               outOfStockItems.map((item, index) => (
                 <tr key={index}>
-                  <td>{index + 1}</td>
                   <td>{item[0]}</td>
                   <td>{item[1]}</td>
                   <td>{item[2]}</td>
@@ -102,7 +106,7 @@ const Analytics = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="4">Loading out-of-stock items...</td>
+                <td colSpan="4">There are currently no low-stock items.</td>
               </tr>
             )}
           </tbody>

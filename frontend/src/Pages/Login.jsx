@@ -27,7 +27,7 @@ function LoginPage() {
       console.log('Logged in successfully:', user);
 
       //userRole=getUserRole(user_ID) //implement flask
-      const userRole = 'admin'; // Hardcoding the user role
+      const userRole = 'user'; // Hardcoding the user role
 
       if (userRole === 'admin') {
         // Redirect to Admin server
@@ -87,6 +87,7 @@ function LoginPage() {
     event.preventDefault();
     setLoading(true);
 
+    // Log in the user using email and password
     const { user, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -100,30 +101,48 @@ function LoginPage() {
     } else {
       console.log('Logged in successfully:', user);
 
-      // Fetch the user role from Flask backend using resident_id (supabase user.id)
-      const resident_id = user.id;
-
       try {
-        const response = await fetch(`http://localhost:5000/get_user_role?resident_id=${resident_id}`);
-        const data = await response.json();
+        // Query the database to find the UID (resident ID) using the email address
+        const { data, error } = await supabase
+          .from('"Users"') // Replace "Users" with the exact table name; wrap in double quotes for case-sensitive names
+          .select('"UID"') // Replace "UID" with the exact column name
+          .eq('"Email"', email); // Replace "Email" with the exact column name
+
+        if (error) {
+          console.error('Error retrieving UID:', error.message);
+          alert(`Failed to retrieve UID from database. Error: ${error.message}`);
+          return;
+        }
+
+        const residentId = data[0]?.UID; // Extract the UID value
+        if (!residentId) {
+          console.error('Resident ID not found in the database for the provided email.');
+          alert('Resident ID not found. Please check your credentials and try again.');
+          return;
+        }
+        console.log('Resident ID (UID):', residentId);
+
+        // Call your backend to fetch user role using the residentId
+        const response = await fetch(`http://localhost:5000/get_user_role?resident_id=${residentId}`);
+        const roleData = await response.json();
+        console.log('Role data:', roleData);
 
         if (response.ok) {
-          const userRole = data.role; // Assuming the role is returned in the response
+          const userRole = roleData.role;
 
           if (userRole === 'admin') {
-            // Redirect to Admin server
-            window.location.href = 'http://localhost:3001/analytics'; // Assuming admin server is running on port 3001
+            window.location.href = 'http://localhost:3001/analytics'; // Redirect to Admin server
           } else if (userRole === 'user') {
             navigate('/Shop'); // Redirect to Shop page
           } else {
             alert(`Unknown role: ${userRole}, please contact support.`);
           }
         } else {
-          throw new Error(data.error || 'Failed to fetch user role');
+          throw new Error(roleData.error || 'Failed to fetch user role');
         }
-      } catch (error) {
-        console.error('Error fetching user role:', error);
-        alert('Failed to fetch user role. Please try again.');
+      } catch (err) {
+        console.error('Error fetching Resident ID or role:', err.message);
+        alert(`Error fetching Resident ID or role: ${err.message}. Please try again.`);
       }
     }
   }

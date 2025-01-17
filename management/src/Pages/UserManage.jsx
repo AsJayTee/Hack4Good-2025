@@ -124,7 +124,11 @@ const UserManagementPage = () => {
   };
 
   
-
+  const handleAddUser = (newUser) => {
+    setUsers([...users, newUser]);
+    setShowCreateUserModal(false);  // Close the modal after adding the user
+  };
+  
 
    
   // Grouping users by their group number
@@ -161,10 +165,7 @@ const UserManagementPage = () => {
   };
 
   const applyPointsToGroups = (adjustment, group) => {
-    if (globalPoints <= 0) {
-      alert("Please enter a valid number of points.");
-      return;
-    }
+    
 
     const updatedUsers = users.map((user) => {
       if (selectedGroups[user.group] || user.group === group) {
