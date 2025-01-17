@@ -1,6 +1,6 @@
 # Frontend Management System
 
-This system is desiged to support admins working in Muhammadiyah Welfare Home (MWH), providing them with an easy and easy-to-use website to manage the web-based Minimart and Voucher System in MWH.   
+This system is desiged to support admins working in Muhammadiyah Welfare Home (MWH), providing them with an easy-to-use website to manage the web-based Minimart and Voucher System in MWH.   
 
  Built with [React], it provides an intuitive interface for managing data, performing CRUD operations, and interacting with backend APIs.
 
@@ -16,7 +16,7 @@ This system is desiged to support admins working in Muhammadiyah Welfare Home (M
 
 ## Overview
 
-This frontend management system provides a user-friendly interface for managing by the residents at the home, the inventory of the minimart and sales request done by the residents. 
+This frontend management system provides a user-friendly interface for managing the residents at the welfare home, the inventory of the minimart and sales request done by the residents. 
 
 ---
 
