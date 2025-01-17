@@ -2,7 +2,7 @@
 
 This system is desiged to support admins working in Muhammadiyah Welfare Home (MWH), providing them with an easy-to-use website to manage the web-based Minimart and Voucher System in MWH.   
 
- Built with [React], it provides an intuitive interface for managing data, performing CRUD operations, and interacting with backend APIs.
+ Built with React, it provides an intuitive interface for managing data, performing CRUD operations, and interacting with backend APIs.
 
 ---
 
@@ -22,7 +22,7 @@ This frontend management system provides a user-friendly interface for managing 
 
 ## Features
 
-- **Responsive UI:** Built with [CSS framework].
+- **Responsive UI:** Built with CSS framework.
 - **Reusable Components:** Modular components that can be reused across the app.
 - **API Integration:** Communicates with backend APIs for data retrieval and updates.
 - **Dynamic Routing:** Supports navigation between different views/pages using React Router.
