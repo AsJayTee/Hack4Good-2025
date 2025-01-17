@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## Hack4Good-2025
 
 ### Muhammadiyah Welfare Home (MWH) System 
@@ -7,6 +8,23 @@
 This project was inspired by the growing need for efficient e-commerce solutions that cater to both customers and administrators. By focusing on a community-based system, we aimed to create a platform that ensures equitable access to resources while providing administrators with comprehensive tools to manage inventory and sales effectively.
 
 ## Table of Contents
+=======
+# Resident E-commerce Platform
+
+<div style="text-align: center;">
+  <img src="frontend/src/Components/Assets/logo.png" alt="Resident Shopping Interface" width="500">
+</div>
+
+Hack4Good - 2025 Muhammadiyah Welfare Home's E-Commerce Webpage
+Team: Hack4Cause
+
+This is an E-commerce platform for residents to shop for food and necessities using a point-based system.
+
+## Steps to take:
+
+1. Run flask_server.py
+2. Follow `npm start` details below
+>>>>>>> dfae3ce4ef88190000e8b9c1cf2ca233a4030c2e
 
 1. [Overview](#overview)
 2. [Features](#features)
