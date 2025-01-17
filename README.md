@@ -1,6 +1,9 @@
+![Alt Text](frontend/src/Components/Assets/logo.png)
+
 # Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Hack4Good - 2025 Muhammadiyah Welfare Home's E-Commerce Webpage
+Team: Hack4Cause
 
 ## Steps to take:
 
