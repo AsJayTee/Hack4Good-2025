@@ -27,7 +27,7 @@ function LoginPage() {
       console.log('Logged in successfully:', user);
 
       //userRole=getUserRole(user_ID) //implement flask
-      const userRole = 'admin'; // Hardcoding the user role
+      const userRole = 'user'; // Hardcoding the user role
 
       if (userRole === 'admin') {
         // Redirect to Admin server
@@ -86,33 +86,40 @@ function LoginPage() {
   async function handleLogin(event) {
     event.preventDefault();
     setLoading(true);
-
+  
     const { user, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-
+  
     setLoading(false);
-
+  
     if (error) {
       console.error('Error logging in:', error.message);
       alert(`Login failed: ${error.message}`);
     } else {
       console.log('Logged in successfully:', user);
-
-      // Fetch the user role from Flask backend using resident_id (supabase user.id)
-      const resident_id = user.id;
-
+      console.log("User object:", user);  // Log the user object to see if resident_id is present
+  
+      const resident_id = user?.user_metadata?.resident_id;
+      if (!resident_id) {
+        console.error("Resident ID is missing from user metadata.");
+        alert('Resident ID not found. Please try again.');
+        return;
+      }
+  
+      console.log("Resident ID:", resident_id);  // Log the resident ID
+  
       try {
         const response = await fetch(`http://localhost:5000/get_user_role?resident_id=${resident_id}`);
         const data = await response.json();
-
+        console.log('Role data:', data);  // Log the response from the backend
+  
         if (response.ok) {
-          const userRole = data.role; // Assuming the role is returned in the response
-
+          const userRole = data.role;
+  
           if (userRole === 'admin') {
-            // Redirect to Admin server
-            window.location.href = 'http://localhost:3001/analytics'; // Assuming admin server is running on port 3001
+            window.location.href = 'http://localhost:3001/analytics'; // Redirect to Admin server
           } else if (userRole === 'user') {
             navigate('/Shop'); // Redirect to Shop page
           } else {
@@ -127,7 +134,8 @@ function LoginPage() {
       }
     }
   }
-
+  
+  
   return (
     <div className="loginsignup">
       <div className="loginsignup-container">
