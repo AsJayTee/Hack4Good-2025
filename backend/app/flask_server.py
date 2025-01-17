@@ -24,7 +24,7 @@ def get_user_role():
         return jsonify({"resident_id": resident_id, "role": role})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
+#test
 @app.route('/getProducts', methods=['GET']) 
 def get_products():
     pageNum = request.args.get('pageNum', default = 1, type = int) 
