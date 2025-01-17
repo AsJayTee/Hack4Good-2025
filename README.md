@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 ## Hack4Good-2025
 
 ### Muhammadiyah Welfare Home (MWH) System 
