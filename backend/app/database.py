@@ -506,6 +506,8 @@ class DatabaseInterface:
         self.cursor.execute(query)
         return self.cursor.fetchall()
     
+    from matplotlib import use
+    use('Agg')
     def get_in_demand_products(self) -> bytes: 
         one_week_ago = datetime.now() - timedelta(weeks=1)
         one_week_ago_str = one_week_ago.strftime('%Y-%m-%d %H:%M:%S')
@@ -564,11 +566,15 @@ if __name__ == '__main__':
     print(di.get_received_coupons('C'))
     print(di.get_received_coupons('C'))
     print(di.get_received_coupons('B'))
-    di.add_inventory_stock(50, 3)"""
+    di.add_inventory_stock(50, 3)
     di.add_user(
     user_id='8cd72293-d237-4f53-93ff-6d6b7b17a7b2',
     user_name='Shavonne',
     user_category='1',
     contact=87654321,
     email='shavonnelim12@gmail.com')
-    print(di.get_low_stock_products())
+    print(di.get_low_stock_products())"""
+    blob_image=di.get_in_demand_products()
+    import base64
+    base64_image = base64.b64encode(blob_image).decode('utf-8')
+    print(base64_image)
