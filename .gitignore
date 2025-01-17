@@ -3,3 +3,5 @@ management\node_modules
 node_modules
 backend/app/__pycache__/
 backend/__pycache__/
+backend/.DS_Store
+backend/app/.DS_Store
