@@ -1,9 +1,13 @@
-![Alt Text](frontend/src/Components/Assets/logo.png)
+# Resident E-commerce Platform
 
-# Getting Started with Create React App
+<div style="text-align: center;">
+  <img src="frontend/src/Components/Assets/logo.png" alt="Resident Shopping Interface" width="500">
+</div>
 
 Hack4Good - 2025 Muhammadiyah Welfare Home's E-Commerce Webpage
 Team: Hack4Cause
+
+This is an E-commerce platform for residents to shop for food and necessities using a point-based system.
 
 ## Steps to take:
 
