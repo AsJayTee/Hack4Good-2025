@@ -124,7 +124,11 @@ const UserManagementPage = () => {
   };
 
   
-
+  const handleAddUser = (newUser) => {
+    setUsers([...users, newUser]);
+    setShowCreateUserModal(false);  // Close the modal after adding the user
+  };
+  
 
    
   // Grouping users by their group number
