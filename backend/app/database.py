@@ -304,7 +304,7 @@ class DatabaseInterface:
             ) -> None:
         query = f"""
         INSERT INTO {self.users_table_name} (Resident_ID, Name, Category, Points_Balance, Contact, Suspended, Email)
-        VALUES (?, ?, ?, 0, ?, FALSE, ?, ?)
+        VALUES (?, ?, ?, 0, ?, FALSE, ?)
         """
         self.cursor.execute(query, (user_id, user_name, user_category, contact, email))
         self.connection.commit()
@@ -545,8 +545,8 @@ if __name__ == '__main__':
     from dotenv import load_dotenv
     load_dotenv()
     di = DatabaseInterface()
-    print(di.get_products(1))
-    """print("---------------------")
+    """print(di.get_products(1))
+    print("---------------------")
     print(di.get_products(1))
     print("---------------------")
     di.rename_group(1, 'A')
@@ -565,4 +565,10 @@ if __name__ == '__main__':
     print(di.get_received_coupons('C'))
     print(di.get_received_coupons('B'))
     di.add_inventory_stock(50, 3)"""
+    di.add_user(
+    user_id='8cd72293-d237-4f53-93ff-6d6b7b17a7b2',
+    user_name='Shavonne',
+    user_category='1',
+    contact=87654321,
+    email='shavonnelim12@gmail.com')
     print(di.get_low_stock_products())
